@@ -9,7 +9,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/swang308/fragments"},
+    "url": "git+https://github.com/swang308/fragments"
+  },
   "author": "Shanyun, Wang",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "prettier": "3.3.3"
+  }
 }
