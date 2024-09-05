@@ -1,5 +1,10 @@
 // src/server.js
 
+// Use LOG_LEVEL if it's set in the environment
+if (process.env.LOG_LEVEL === 'debug') {
+  console.log('Enviorment Variable: ', process.env);
+}
+
 // We want to gracefully shutdown our server
 const stoppable = require('stoppable');
 
