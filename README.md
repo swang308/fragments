@@ -32,9 +32,9 @@ We create node.js based REST API using Express
   * .gitignore for node,
 - Invite your professor to this repo
 - Clone to local machine
-  ```sh
-    git clone git@github.com:swang308/fragments.git
-  ```
+```sh
+git clone git@github.com:swang308/fragments.git
+```
 - Open a terminal and cd to your cloned repo
   * cd fragments
 
