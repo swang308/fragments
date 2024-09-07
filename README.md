@@ -46,5 +46,5 @@ Create a `package.json`, -y will answers yes to all questions
 Open entire project in VSCode
   code .
 
-####
+#### package.json
 
