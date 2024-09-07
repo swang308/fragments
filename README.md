@@ -39,6 +39,7 @@ git clone git@github.com:swang308/fragments.git
   * cd fragments
 
 #### npm
+##### package.json
 - Create a `package.json`, -y will answers yes to all questions
   * npm init -y
 - Open entire project in VSCode
@@ -51,6 +52,24 @@ git clone git@github.com:swang308/fragments.git
   * description
   * repository's url
 - Remove unneeded keys
+- Example
+```json
+{
+  "name": "fragments",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Fragments back-end API",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/REPLACE-THIS-WITH-YOUR-GITHUB-USERNAME/fragments.git"
+  },
+  "author": "REPLACE WITH YOUR NAME",
+  "license": "UNLICENSED"
+}
+```
 
 
 
