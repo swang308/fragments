@@ -1,10 +1,32 @@
 # CCP555 NSA course - fragments API
 
-Update the README.md file to include instructions on how to run the various scripts you just created (i.e., lint, start, dev, debug). Include everything you think you might forget. You're going to spend a lot of time working in this code, so it's a good idea to document everything you can. Good docs are better than faulty memories! Marks will be deducted if your README is incomplete.
+This guide outlines the process of setting up a Node.js-based REST API using Express for the CCP555 NSA course. The API, named Fragments, is developed using best practices for logging, code formatting, and linting. The guide walks through Git usage, setting up the development environment, and configuring various tools like Prettier, ESLint, and structured logging with Pino.
 
-## Student Information
-- Student Name: Shanyun, Wang
-- Student ID: 133159228
+## Git Command
+- Avoid use `git add .`, it will add files and folders you don't expect.
+- `git status` to see which files changed
+
+## Run Server
+- To run server, use command: `node src/server.js`
+- Access the application in a browser: `http://localhost:8080`
+## Structure and Route Information
+fragements/
+|-- .vscode/
+│   |-- launch.js         
+│   |-- settings.js         
+|-- node_modules/
+|-- src/
+│   |-- app.js         # Express app configuration
+│   |-- server.js      # Server entry point
+│   |-- logger.js      # Logger utility
+|-- .gitignore         # Ignore unnecessary files for git
+|-- .prettierignore
+|-- .prettierrc
+|-- eslint.config.mjs  # ESLint configuration
+|-- package-lock.json  # Package version lock file
+|-- package.json       # Project metadata and dependencies
+|-- README.md          # Project documentation
+
 
 ## Getting Started
 ### Prerequisites
@@ -25,34 +47,33 @@ Confirm version is up-to-date
 ### Installing
 #### API Server
 We create node.js based REST API using Express
-- Create 
-  * a PRIVATE Github repo named `fragments` 
-  * Description, 
-  * README, 
-  * .gitignore for node,
-- Invite your professor to this repo
-- Clone to local machine
+1. Create 
+  - a PRIVATE Github repo named `fragments` 
+  - Description, 
+  - README, 
+  - .gitignore for node,
+2. Invite your professor to this repo
+3. Clone to local machine
 ```sh
 git clone git@github.com:swang308/fragments.git
 ```
-- Open a terminal and cd to your cloned repo
-  * cd fragments
-
+4. Open a terminal and cd to your cloned repo
+  - cd fragments
 #### npm
 ##### package.json
-- Create a `package.json`, -y will answers yes to all questions
-  * npm init -y
-- Open entire project in VSCode
-  * code .
-- Modify `package.json`
-  * version: 0.0.1
-  * private: true
-  * license: UNLICENSED
-  * author: student name
-  * description
-  * repository's url
-- Remove unneeded keys
-- Example
+5. Create a `package.json`, -y will answers yes to all questions
+  - npm init -y
+6. Open entire project in VSCode
+  - code .
+7. Modify `package.json`
+  - version: 0.0.1
+  - private: true
+  - license: UNLICENSED
+  - author: student name
+  - description
+  - repository's url
+8. Remove unneeded keys
+9. Example
 ```json
 {
   "name": "fragments",
@@ -70,6 +91,424 @@ git clone git@github.com:swang308/fragments.git
   "license": "UNLICENSED"
 }
 ```
+10. Validate
+  - In terminal, run `npm stall`
+  - Fix errors if it generates
+11. Create a `package-lock.json`
+12. Commit files `package.json` and `package-lock.json`
+```sh
+git add package.json package-lock.json
+git commit -m "Initial npm setup"
+```
+#### Prettier
+1. Install and configure, installing as a Development Dependency (prettier hsould be installed with an exact version)
+```sh
+npm install --save-dev --save-exact prettier
+```
+2. Create a `.prettierrc` file, using follwing configuration
+```json
+{
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "embeddedLanguageFormatting": "auto",
+  "endOfLine": "lf",
+  "insertPragma": false,
+  "proseWrap": "preserve",
+  "requirePragma": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "useTabs": false,
+  "printWidth": 100
+}
+```
+3. Create a `.prettierignore` file, this tells Prettier which files and floder to ignore when formatting, in this project, we don't want to format code in `node_modules/` or alter `package.json` or `package-lock.json`:
+```
+node_modules/
+package.json
+package-lock.json
+```
+4. Install Prettier - Code format VSCode extension
+5. Create a folder name `.vscode/` in the root of project
+6. Add a `settings.json` file to it, these settings will override VSCode works when working on this project but not affect other projects:
+```json
+{
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  },
+  "files.eol": "\n",
+  "files.insertFinalNewline": true
+}
+```
+7. Save and commit
+```sh
+git add package.json package-lock.json .prettierignore .prettierrc .vscode/settings.json
+git commit -m "Add prettier"
+```
+#### ESLint
+1. Open terminal, setup ESLint, run `npm audit fix` if you have vulnerabilities
+```
+npm init @eslint/config@latest
+Need to install the following packages:
+@eslint/create-config@1.3.1
 
+✔ How would you like to use ESLint? · problems
+✔ What type of modules does your project use? · commonjs
+✔ Which framework does your project use? · none
+✔ Does your project use TypeScript? · javascript
+✔ Where does your code run? · node
 
+eslint, globals, @eslint/js
+✔ Would you like to install them now? · No / Yes
+✔ Which package manager do you want to use? · npm
+☕️Installing...
 
+added 8 packages, removed 11 packages, changed 12 packages, and audited 224 packages in 2s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+2 vulnerabilities (1 moderate, 1 high)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+Successfully created /Users/humphd/Documents/Seneca/CCP555 DPS955/Fall 2024/fragments/eslint.config.mjs file.
+```
+
+This will create an Eslint config file `eslint.cofig.mjs`, example:
+```js
+import globals from 'globals';
+import pluginJs from '@eslint/js';
+
+export default [
+  { files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
+  { languageOptions: { globals: globals.node } },
+  pluginJs.configs.recommended,
+];
+```
+> NOTE: the .mjs extension vs .js indicates to node.js that this is an ES6 Module.
+
+2. Install the ESLint VSCode extenstion.
+3. In `package.json` file, add a `lint` script. to run ESLint from command line
+```json
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "lint": "eslint \"./src/**/*.js\""
+},
+```
+> We will have `src/` folder later
+4. See which files changed then `add` and `commit` to git.
+```sh
+git status
+
+git add eslint.config.mjs package-lock.json package.json
+git commit -m "Add eslint"
+``` 
+#### Structured Logging and Pino
+1. Create a `src/` folder to store all source code
+```sh
+mkdir src
+```
+2. Use proper Structured Logging in cloud enviroment, with JSON formatted strings. We use Pino:
+```sh
+npm install --save pino pino-pretty pino-http
+```
+> `--save` to have dependencies added to `package.json` automatically
+3. Create and configure a Pino Logger instance, in `scr/logger.js`
+```js
+// src/logger.js
+
+// Use `info` as our standard log level if not specified
+const options = { level: process.env.LOG_LEVEL || 'info' };
+
+// If we're doing `debug` logging, make the logs easier to read
+if (options.level === 'debug') {
+  // https://github.com/pinojs/pino-pretty
+  options.transport = {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+    },
+  };
+}
+
+// Create and export a Pino Logger instance:
+// https://getpino.io/#/docs/api?id=logger
+module.exports = require('pino')(options);
+```
+4. See which files changed then `add` and `commit` to git.
+```sh
+git status
+
+git add eslint.config.mjs package-lock.json package.json
+git commit -m "Add eslint"
+```
+#### Express App
+1. Install packages necessary for `Express app`
+```sh
+npm install --save express cors helmet compression
+```
+2. Create a `app.js` file put in `src/` to define Eepress app. This file will
+  * create an `app` instance
+  * attach various `middleware` functions for all routes
+  * define our HTTPS route
+  * add middleware for dealing with 404s
+  * add `error-handling middleware`
+3. Example
+```js
+// src/app.js
+
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+
+// author and version from our package.json file
+// TODO: make sure you have updated your name in the `author` section
+const { author, version } = require('../package.json');
+
+const logger = require('./logger');
+const pino = require('pino-http')({
+  // Use our default logger instance, which is already configured
+  logger,
+});
+
+// Create an express app instance we can use to attach middleware and HTTP routes
+const app = express();
+
+// Use pino logging middleware
+app.use(pino);
+
+// Use helmetjs security middleware
+app.use(helmet());
+
+// Use CORS middleware so we can make requests across origins
+app.use(cors());
+
+// Use gzip/deflate compression middleware
+app.use(compression());
+
+// Define a simple health check route. If the server is running
+// we'll respond with a 200 OK.  If not, the server isn't healthy.
+app.get('/', (req, res) => {
+  // Clients shouldn't cache this response (always request it fresh)
+  // See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching#controlling_caching
+  res.setHeader('Cache-Control', 'no-cache');
+
+  // Send a 200 'OK' response with info about our repo
+  res.status(200).json({
+    status: 'ok',
+    author,
+    // TODO: change this to use your GitHub username!
+    githubUrl: 'https://github.com/REPLACE_WITH_YOUR_GITHUB_USERNAME/fragments',
+    version,
+  });
+});
+
+// Add 404 middleware to handle any requests for resources that can't be found
+app.use((req, res) => {
+  res.status(404).json({
+    status: 'error',
+    error: {
+      message: 'not found',
+      code: 404,
+    },
+  });
+});
+
+// Add error-handling middleware to deal with anything else
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  // We may already have an error response we can use, but if not,
+  // use a generic `500` server error and message.
+  const status = err.status || 500;
+  const message = err.message || 'unable to process request';
+
+  // If this is a server error, log something so we can see what's going on.
+  if (status > 499) {
+    logger.error({ err }, `Error processing request`);
+  }
+
+  res.status(status).json({
+    status: 'error',
+    error: {
+      message,
+      code: status,
+    },
+  });
+});
+
+// Export our `app` so we can access it in server.js
+module.exports = app;
+```
+#### Express Server
+1. Install `stoppable` package to allow our server to exit
+```sh
+npm install --save stoppable
+```
+2. Create a `server.js` in `src/`
+```js
+// src/server.js
+
+// We want to gracefully shutdown our server
+const stoppable = require('stoppable');
+
+// Get our logger instance
+const logger = require('./logger');
+
+// Get our express app instance
+const app = require('./app');
+
+// Get the desired port from the process' environment. Default to `8080`
+const port = parseInt(process.env.PORT || '8080', 10);
+
+// Start a server listening on this port
+const server = stoppable(
+  app.listen(port, () => {
+    // Log a message that the server has started, and which port it's using.
+    logger.info(`Server started on port ${port}`);
+  })
+);
+
+// Export our server instance so other parts of our code can access it if necessary.
+module.exports = server;
+```
+3. Run `eslint` and ensure no errors
+```sh
+npm run lint
+```
+4. Test and run the server manually
+```sh
+node src/server.js
+```
+5. Try browsing `http://localhost:8080`, a JSON health check response
+6. Open another terminal and run
+```sh
+curl http://localhost:8080
+```
+7. Confirm the `author` and `githubUrl` is correct for your account.
+```sh
+ curl localhost:8080
+{"status":"ok","author":"Shan-Yun, Wang","githubUrl":"https://github.com/swang308/fragments","version":"0.0.1"}
+```
+8. Intsall `jq` and pipe the CURL, which will pretty-print the JSON
+```sh
+curl -s localhost:8080 | jq
+```
+Output:
+```sh
+{
+  "status": "ok",
+  "author": "Shan-Yun, Wang",
+  "githubUrl": "https://github.com/swang308/fragments",
+  "version": "0.0.1"
+}
+```
+9. Confirm your server id sending the right HTTP header, open the `Dev Tools and Network Tab`, look for `Cache-Control` and `Access-Control-Allow-Origin`, run CURL with -i flag:
+```sh
+curl -i localhost:8080
+```
+Output:
+```sh
+HTTP/1.1 200 OK
+Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: same-origin
+Origin-Agent-Cluster: ?1
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=15552000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-DNS-Prefetch-Control: off
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-XSS-Protection: 0
+Access-Control-Allow-Origin: *
+Cache-Control: no-cache
+Content-Type: application/json; charset=utf-8
+Content-Length: 110
+ETag: W/"6e-Ic45VDs+Y8k98Qsp2i/KcS0SwjI"
+Vary: Accept-Encoding
+Date: Sun, 08 Sep 2024 21:06:39 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"status":"ok","author":"Shanyun, Wang","githubUrl":"https://github.com/swang308/fragments","version":"0.0.1"}%  
+```
+10. See which files changed then `add` and `commit` to git.
+```sh
+git status
+
+git add eslint.config.mjs package-lock.json package.json
+git commit -m "Add eslint"
+```
+#### Server Startup Scripts
+1. Install `nodemon` package, it helps automatically reload our server whenever the code changes
+```sh
+npm install --save-dev nodemon
+```
+2. In `package.json` file, add npm scripts
+  * `start`: run our server normally
+  * `dev`: run it via `nodemon`, it watches `src/**` folder for any changes and restart server whenever something is updated
+  * `debug`: same as `dev` but start the `node inspector` on pirt `9229`, so we can attach a debugger
+```json
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "lint": "eslint \"./src/**/*.js\"",
+  "start": "node src/server.js",
+  "dev": "LOG_LEVEL=debug nodemon ./src/server.js --watch src",
+  "debug": "LOG_LEVEL=debug nodemon --inspect=0.0.0.0:9229 ./src/server.js --watch src"
+},
+```
+3. To start server, run:
+```sh
+npm start
+npm run dev
+npm run debug
+```
+4. Set up a `.vscode/launch.json`
+```json
+// .vscode/launch.json
+{
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    // Start the app and attach the debugger
+    {
+      "name": "Debug via npm run debug",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "debug"],
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
+    }
+  ]
+}
+```
+5. Try to set a breakpoint in `src/app.js` and start the server via `VSCode` debugger.
+6. See which files changed then `add` and `commit` to git.
+```sh
+git status
+
+git add eslint.config.mjs package-lock.json package.json
+git commit -m "Add eslint"
+
+## Student Information
+- Student Name: Shanyun, Wang
+- Student ID: 133159228
+
+## Version History
+- 2024-09-08 v01
+  * version 01 initial
+
+## Acknowledgement
+- jq
+-
