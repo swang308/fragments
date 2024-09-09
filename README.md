@@ -11,6 +11,7 @@ This guide outlines setting up a Node.js-based REST API using Express for the CC
 - Access the application in a browser: `http://localhost:8080`
 
 ## Structure and Route Information
+```bash
 fragements/
   .
   ├── .vscode/
@@ -28,7 +29,7 @@ fragements/
   ├── package-lock.json  # Package version lock file
   ├── package.json       # Project metadata and dependencies
   └── README.md          # Project documentation
-
+```
 ## Getting Started
 ### Prerequisites
 Confirm version is up-to-date
