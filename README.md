@@ -483,7 +483,7 @@ npm run dev
 npm run debug
 ```
 4. Set up a `.vscode/launch.json`:
-```json
+```js
 // .vscode/launch.json
 {
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
