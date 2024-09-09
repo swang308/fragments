@@ -12,20 +12,35 @@ This guide outlines setting up a Node.js-based REST API using Express for the CC
 
 ## Structure and Route Information
 fragements/
+
 |-- .vscode/
+
 │   |-- launch.json    # To connect a debugger     
+
 │   |-- settings.json  # Sepcific settings       
+
 |-- node_modules/
+
 |-- src/
+
 │   |-- app.js         # Express app configuration
+
 │   |-- server.js      # Server entry point
+
 │   |-- logger.js      # Logger utility
+
 |-- .gitignore         # Ignore unnecessary files for git
+
 |-- .prettierignore    # Ignore unnecessary files for prettier
+
 |-- .prettierrc
+
 |-- eslint.config.mjs  # ESLint configuration
+
 |-- package-lock.json  # Package version lock file
+
 |-- package.json       # Project metadata and dependencies
+
 |-- README.md          # Project documentation
 
 ## Getting Started
