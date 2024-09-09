@@ -482,7 +482,7 @@ npm start
 npm run dev
 npm run debug
 ```
-4. Set up a `.vscode/launch.json`
+4. Set up a `.vscode/launch.json`:
 ```json
 // .vscode/launch.json
 {
@@ -516,7 +516,7 @@ git commit -m "Add eslint"
 - Student ID: 133159228
 
 ## Version History
-- 2024-09-08 v01
+- 2024-09-09 v01
   * version 01 initial
 
 ## Acknowledgement
