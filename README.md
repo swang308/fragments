@@ -1,52 +1,52 @@
 # CCP555 NSA course - fragments API
 
-This guide outlines the process of setting up a Node.js-based REST API using Express for the CCP555 NSA course. The API, named Fragments, is developed using best practices for logging, code formatting, and linting. The guide walks through Git usage, setting up the development environment, and configuring various tools like Prettier, ESLint, and structured logging with Pino.
+This guide outlines setting up a Node.js-based REST API using Express for the CCP555 NSA course. The API, Fragments, is developed using best practices for logging, code formatting, and linting. The guide walks through Git usage, setting up the development environment, and configuring tools like Prettier, ESLint, and structured logging with Pino.
 
 ## Git Command
-- Avoid use `git add .`, it will add files and folders you don't expect.
+- Avoid using `git add .`, it will add files and folders you don't expect.
 - `git status` to see which files changed
 
 ## Run Server
 - To run server, use command: `node src/server.js`
 - Access the application in a browser: `http://localhost:8080`
+
 ## Structure and Route Information
 fragements/
 |-- .vscode/
-│   |-- launch.js         
-│   |-- settings.js         
+│   |-- launch.json    # To connect a debugger     
+│   |-- settings.json  # Sepcific settings       
 |-- node_modules/
 |-- src/
 │   |-- app.js         # Express app configuration
 │   |-- server.js      # Server entry point
 │   |-- logger.js      # Logger utility
 |-- .gitignore         # Ignore unnecessary files for git
-|-- .prettierignore
+|-- .prettierignore    # Ignore unnecessary files for prettier
 |-- .prettierrc
 |-- eslint.config.mjs  # ESLint configuration
 |-- package-lock.json  # Package version lock file
 |-- package.json       # Project metadata and dependencies
 |-- README.md          # Project documentation
 
-
 ## Getting Started
 ### Prerequisites
 Confirm version is up-to-date
-- Node.js
-- VSCode
-  * ESLint
-  * Prettier
+- [Node.js](https://nodejs.org/en)
+- [VSCode](https://code.visualstudio.com/)
+  * [ESLint](https://eslint.org/docs/latest/use/getting-started)
+  * [Prettier](https://prettier.io/)
   * Code Spell Checker
-- git
+- [git](https://git-scm.com/downloads)
   * cli
-- curl
-  * jq
+- [curl](https://curl.se/)
+  * [jq](https://jqlang.github.io/jq/tutorial/)
 - Extra tools for Windows
-  * WSL2
-  * Windows Terminal 
+  * [WSL2](https://www.windowscentral.com/how-install-wsl2-windows-10)
+  * [Windows Terminal](https://www.microsoft.com/en-ca/p/windows-terminal/9n0dx20hk701#activetab=pivot:overviewtab)
 
 ### Installing
 #### API Server
-We create node.js based REST API using Express
+We create node.js based REST API using [Express](https://expressjs.com/)
 1. Create 
   - a PRIVATE Github repo named `fragments` 
   - Description, 
@@ -59,21 +59,27 @@ git clone git@github.com:swang308/fragments.git
 ```
 4. Open a terminal and cd to your cloned repo
   - cd fragments
+
 #### npm
 ##### package.json
-5. Create a `package.json`, -y will answers yes to all questions
-  - npm init -y
-6. Open entire project in VSCode
-  - code .
-7. Modify `package.json`
+1. Create a `package.json`
+```sh
+npm init -y
+```
+> `-y` will answer yes to all questions
+2. Open entire project in VSCode
+```sh
+code .
+```
+3. Modify `package.json`
   - version: 0.0.1
   - private: true
   - license: UNLICENSED
   - author: student name
   - description
   - repository's url
-8. Remove unneeded keys
-9. Example
+4. Remove unneeded keys
+5. Example
 ```json
 {
   "name": "fragments",
@@ -85,27 +91,28 @@ git clone git@github.com:swang308/fragments.git
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/REPLACE-THIS-WITH-YOUR-GITHUB-USERNAME/fragments.git"
+    "url": "git+https://github.com/swang308/fragments.git"
   },
-  "author": "REPLACE WITH YOUR NAME",
+  "author": "Shan-Yun, Wang",
   "license": "UNLICENSED"
 }
 ```
-10. Validate
+6. Validate
   - In terminal, run `npm stall`
   - Fix errors if it generates
-11. Create a `package-lock.json`
-12. Commit files `package.json` and `package-lock.json`
+> When running `npm install`, it creates a `package-lock.json`
+7. Commit files `package.json` and `package-lock.json`
 ```sh
 git add package.json package-lock.json
 git commit -m "Initial npm setup"
 ```
+
 #### Prettier
-1. Install and configure, installing as a Development Dependency (prettier hsould be installed with an exact version)
+1. Install and configure, installing as a Development Dependency([prettier](https://prettier.io/) should be installed with an exact version)
 ```sh
 npm install --save-dev --save-exact prettier
 ```
-2. Create a `.prettierrc` file, using follwing configuration
+2. Create a `.prettierrc` file, using following configuration
 ```json
 {
   "arrowParens": "always",
@@ -128,7 +135,7 @@ node_modules/
 package.json
 package-lock.json
 ```
-4. Install Prettier - Code format VSCode extension
+4. Install [Prettier - Code Formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) VSCode extension
 5. Create a folder name `.vscode/` in the root of project
 6. Add a `settings.json` file to it, these settings will override VSCode works when working on this project but not affect other projects:
 ```json
@@ -151,7 +158,7 @@ git add package.json package-lock.json .prettierignore .prettierrc .vscode/setti
 git commit -m "Add prettier"
 ```
 #### ESLint
-1. Open terminal, setup ESLint, run `npm audit fix` if you have vulnerabilities
+1. Open terminal, setup [ESLint](https://eslint.org/docs/user-guide/getting-started), run `npm audit fix` if you have vulnerabilities
 ```
 npm init @eslint/config@latest
 Need to install the following packages:
@@ -195,7 +202,7 @@ export default [
 ```
 > NOTE: the .mjs extension vs .js indicates to node.js that this is an ES6 Module.
 
-2. Install the ESLint VSCode extenstion.
+2. Install the [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) VSCode extenstion.
 3. In `package.json` file, add a `lint` script. to run ESLint from command line
 ```json
 "scripts": {
@@ -216,12 +223,12 @@ git commit -m "Add eslint"
 ```sh
 mkdir src
 ```
-2. Use proper Structured Logging in cloud enviroment, with JSON formatted strings. We use Pino:
+2. Use proper Structured Logging in cloud enviroment, with JSON formatted strings. We use [Pino](https://getpino.io/#/):
 ```sh
 npm install --save pino pino-pretty pino-http
 ```
 > `--save` to have dependencies added to `package.json` automatically
-3. Create and configure a Pino Logger instance, in `scr/logger.js`
+3. Create and configure a Pino [Logger](https://getpino.io/#/docs/api?id=logger) instance, in `scr/logger.js`
 ```js
 // src/logger.js
 
@@ -251,16 +258,16 @@ git add eslint.config.mjs package-lock.json package.json
 git commit -m "Add eslint"
 ```
 #### Express App
-1. Install packages necessary for `Express app`
+1. Install packages necessary for [Express app](https://expressjs.com/)
 ```sh
 npm install --save express cors helmet compression
 ```
-2. Create a `app.js` file put in `src/` to define Eepress app. This file will
+2. Create a `app.js` file put in `src/` to define [Eepress app](https://expressjs.com/). This file will
   * create an `app` instance
-  * attach various `middleware` functions for all routes
+  * attach various [middleware](https://expressjs.com/en/guide/using-middleware.html) functions for all routes
   * define our HTTPS route
   * add middleware for dealing with 404s
-  * add `error-handling middleware`
+  * add [error-handling middleware](https://expressjs.com/en/guide/using-middleware.html#middleware.error-handling)
 3. Example
 ```js
 // src/app.js
@@ -348,8 +355,9 @@ app.use((err, req, res, next) => {
 // Export our `app` so we can access it in server.js
 module.exports = app;
 ```
+
 #### Express Server
-1. Install `stoppable` package to allow our server to exit
+1. Install [stoppable](https://www.npmjs.com/package/stoppable) package to allow our server to exit
 ```sh
 npm install --save stoppable
 ```
@@ -376,7 +384,6 @@ const server = stoppable(
     logger.info(`Server started on port ${port}`);
   })
 );
-
 // Export our server instance so other parts of our code can access it if necessary.
 module.exports = server;
 ```
@@ -388,7 +395,7 @@ npm run lint
 ```sh
 node src/server.js
 ```
-5. Try browsing `http://localhost:8080`, a JSON health check response
+5. Try browsing [http://localhost:8080](http://localhost:8080/), a JSON health check response
 6. Open another terminal and run
 ```sh
 curl http://localhost:8080
@@ -402,6 +409,7 @@ curl http://localhost:8080
 ```sh
 curl -s localhost:8080 | jq
 ```
+> the -s option [silences](https://everything.curl.dev/usingcurl/verbose#silence) the usual output to CURL, only sending the response from the server to jq
 Output:
 ```sh
 {
@@ -411,7 +419,7 @@ Output:
   "version": "0.0.1"
 }
 ```
-9. Confirm your server id sending the right HTTP header, open the `Dev Tools and Network Tab`, look for `Cache-Control` and `Access-Control-Allow-Origin`, run CURL with -i flag:
+9. Confirm your server id sending the right HTTP header, open the [Dev Tools and Network Tab](https://developer.chrome.com/docs/devtools/network/reference/#headers), look for `Cache-Control` and `Access-Control-Allow-Origin`, run CURL with [-i](https://curl.se/docs/manpage.html#-i) flag:
 ```sh
 curl -i localhost:8080
 ```
@@ -449,8 +457,9 @@ git status
 git add eslint.config.mjs package-lock.json package.json
 git commit -m "Add eslint"
 ```
+
 #### Server Startup Scripts
-1. Install `nodemon` package, it helps automatically reload our server whenever the code changes
+1. Install [nodemon](https://nodemon.io/) package, it helps automatically reload our server whenever the code changes
 ```sh
 npm install --save-dev nodemon
 ```
@@ -501,6 +510,7 @@ git status
 git add eslint.config.mjs package-lock.json package.json
 git commit -m "Add eslint"
 ```
+
 ## Student Information
 - Student Name: Shanyun, Wang
 - Student ID: 133159228
@@ -510,5 +520,9 @@ git commit -m "Add eslint"
   * version 01 initial
 
 ## Acknowledgement
-- jq
--
+- [DiscussionBorad](https://github.com/humphd/cloud-computing-for-programmers-fall-2024/discussions)
+- [Read more about how to configure eslint](https://eslint.org/docs/latest/use/configure/)
+- [Use proper Structured Logging](https://developer.ibm.com/blogs/nodejs-reference-architectire-pino-for-logging/) 
+- [npmjs](https://www.npmjs.com/)
+- [Health Check](https://www.ibm.com/garage/method/practices/manage/health-check-apis/) to determine if the server is accepting requests
+- [jq](https://jqlang.github.io/jq/tutorial/)
