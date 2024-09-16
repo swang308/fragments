@@ -60,7 +60,6 @@ git clone git@github.com:swang308/fragments.git
 ```
 4. Open a terminal and cd to your cloned repo
   - cd fragments
-
 #### npm
 ##### package.json
 1. Create a `package.json`
@@ -107,7 +106,6 @@ code .
 git add package.json package-lock.json
 git commit -m "Initial npm setup"
 ```
-
 #### Prettier
 1. Install and configure, installing as a Development Dependency([prettier](https://prettier.io/) should be installed with an exact version)
 ```sh
@@ -356,7 +354,6 @@ app.use((err, req, res, next) => {
 // Export our `app` so we can access it in server.js
 module.exports = app;
 ```
-
 #### Express Server
 1. Install [stoppable](https://www.npmjs.com/package/stoppable) package to allow our server to exit
 ```sh
@@ -458,7 +455,6 @@ git status
 git add eslint.config.mjs package-lock.json package.json
 git commit -m "Add eslint"
 ```
-
 #### Server Startup Scripts
 1. Install [nodemon](https://nodemon.io/) package, it helps automatically reload our server whenever the code changes
 ```sh
@@ -512,11 +508,425 @@ git add eslint.config.mjs package-lock.json package.json
 git commit -m "Add eslint"
 ```
 
+## Connect to AWS Services
+### AWS Academy Learner Lab instructions
+1. Go to [AWS Academy Learner Lab](https://awsacademy.instructure.com/)
+2. Click **Start Lab** to start session(each session is 4 hours)
+  - yellow dot: the lab is starting
+  - green dot : the lab environment is fully started 
+  - red dot   : the lab is ened
+3. End session to pause AWS resources
+> DO NOT CLICK `Reset`, it will delete everything
+4. Logging account is a `temporary account and session` abd able to access more than 50 AWS services.
+5. $50 AWS credits for account, CANNOT be increased if you spend. **DO NOT WASTE THEM**
+> Monitor spending using the information at the top of the lab, it oftne delayed by up to 8 hours
+6. AWS CLI terminal is also available in the lab view. It is automatically configured with your current AWS Security Credentials, and you can use the AWS CLI to manage your AWS services. 
+> Use `aws help` to see help info (press `space` to scroll, `q` to exit).
+
+### Store AWS Security Credentials
+1. In AWS Academy Learner Lab browser tab, click AWS Details and it will show various details including AWS CLI Sow buttton
+2. Click show and it reveal yor [AWS Security Credentails](https://docs.aws.amazon.com/general/latest/gr/aws-security-credentials.html), including a profile name, access key, a secret access key, and a session token. Example:
+```bash
+[default]
+aws_access_key_id=AKIAIOSFODNN7EXAMPLE
+aws_secret_access_key=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+aws_session_token=AQoEXAMPLEH4aoAH0gNCAPy...rkuWJOgQs8IZZaIv2BXIa2R4Olgk
+```
+> the credentials for the default profile are defined
+3. Create a `.aws/` folder in your home directory and a file named `credentials`
+4. These credentials show be kept secret, DO NOT SHARE!
+> Your Account credentials (e.g., session token) will change each time you start and stop the lab environment.
+
+### AWS Management Console
+1. In AWS Academy Learner Lab browser tab, click `AWS`. It open the **AWS Management Console** logged into your account
+2. Click **Services** button (on the top left).
+3. Search `Cognito`, this will be our first service.
+
+### Amazon Cognito
+
+[Amazon Cognito](https://aws.amazon.com/cognito/) allows you to add **authentication**, **authorization**, and **user management** to your web and mobile applications. The service is free for firste 50,000 users each month, let's see more details about [User Pools](https://docs.aws.amazon.com/cognito/latest/developerguide/getting-started-user-pools.html).
+
+#### Amazon Cognito User Pool Setup
+
+The **User Pool** helps to manage user registration and sign-in. We can use it to authenticate users directly or integrate with social identity providers like Google, Facebook, and so on. it also support two factor authentication to add an extra layer of security.
+> Multi-Factor Authentication (MFA)
+
+1. Knowing difference between **authentication** and **authorization**.
+  - Authentication: the process of verifying **who** someone is.
+  - Authorization : the process of determining **what** someone is allowed to do.
+2. Find `Cognito` on the services, and click it.
+3. click Create user pool in AWS Console Amazon Cognito page
+> If you receive `403 Forbidden` errors, you can ignore it. They refer to API calls that your Learner Lab account is not authorized to make in the AWS Console.
+4. Create and configure User Pool:
+  - Step 1: Configure sign-in experience
+    * the default Provider type is correct
+    * set sign-in options to **Username** for sign in.
+    > you can choose **Email** if you want.
+  - Step 2: Configure secutiry requirement
+    * Password policy options: Cognito default
+    * Multi-factor authentication: No MFA
+    * Self-service account recovery: Enable self-service account recovery
+    * Delivery method for user account recovery messages: Email Only
+  - Step 3: Configure sign-up experience
+    * Self-registration: Enable self-registration
+    * Clicked: Allow Cognito to automatically send messages to verify and confirm
+    * Clicked: Send email message, verify email email address
+    * Verifying attribute changes: Keep original attribute value active when an update is pending and to keep the Email address active during an update.
+    * Required attributes: `email`
+    > More info, more responsibility to secure, maintain, bcakup, and manage.
+    * Skip: Custom attributes
+  - Step 4: Configure message delivery
+    * Clicked: Send email with Cognito
+    > Amazon has [Simple Email Services (SES)](https://aws.amazon.com/ses/), for adding email features to apps. But it adds cost and complexity, here we only testing, so choose **Send email with Cognito**
+    * default "no-reply@verificationemail.com" 
+    * Keep empty: REPLY-TO email address - optional
+  - Step 5: Integrate your app
+    * Add user pool name, example: `fragments-swang308`
+    * Clicked: Use the Cognito Hosted UI 
+    * Domain: Use a Cognito domain. **PREFIX** example: `https://swang308-fragments.auth.us-east-1.amazoncognito.com`, make a note to this URL
+    *  App type: Public Client
+    > A browser-based client cannot contain a secret
+    > `fragments` web service is NOT going to handle user login or authentication. The `fragments-ui` web app will allow users to authenticate, and only then can they communicate securely with our back-end web service.
+    * Choose App client name, example: `fragments-ui`
+    * Client secret: Don't generate a client secret
+    * Allowed callback URLs: http://localhost:1234
+    > do NOT have a trailing slash http://localhost:1234 vs. http://localhost:1234/
+    * Don't alter: Advanced app client settings or Attribute read and write permissions
+    * Tags: Add if you want, this help to identify services and resources for billing purposes.
+    > [AWS Tags](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html) 
+  - Step 6: Review and create
+#### Manage User Pool in the Console
+
+1. In Amazon Cognito page, choose your User pool example: `fragments-swang308`
+2. See User Pool overview, includes:
+  - User pool name
+  - User pool ID: for API calls
+  - Amazon Resource Name (ARN): a URI that uniquely identifies this AWS resource
+3. Below has a list of, horizontally:
+  - Users
+  - Groups
+  - Sign-in experience
+  - Sign-up experience
+  - Messaging
+    * Message templates: Alter the text of the email messages that get sent to users on sign up
+  - App integration
+    * Domain: Find the Cognito domain for your OAuth endpoint and login page.
+    * App client list: Find your fragments-ui app's Client ID. This will look something like `3a6mndd57472vkm1nmcs2od9u3`. 
+  - User pool properties
+
+### Create the `fragments-ui` web app and repo
+
+We create a simple web app for testing our microservice.
+
+#### Reminder
+- `Parcel` uses: http://localhost:1234
+#### Create Github repo
+1. Create a **private** Github repo named `fragments-ui` with a `.gitignore` (for node) and a `README.md`.
+2. Clone to your local machine and put `fragments` and `fragments-ui` in same parents folder
+```bash
+CPP555/
+├─ fragments/
+├─ fragments-ui/
+```
+#### Set up fragments-ui
+1. Use npm to install
+```sh
+cd fragments-ui
+npm init -y
+```
+2. Edit `package.json` file liek this
+```json
+{
+  "name": "fragments-ui",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Fragments UI testing web app",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swang308/fragments-ui.git"
+  },
+  "author": "Shan-Yun, Wang",
+  "license": "UNLICENSED"
+}
+```
+#### Set up `Parcel`
+1. Use npm to install
+```sh
+npm install --save-dev parcel
+```
+2. Create a `src/` folder and `src/index.html`
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>My First Parcel App</title>
+  </head>
+  <body>
+    <h1>Hello, World!</h1>
+  </body>
+</html>
+```
+3. Rubuild app as you change
+```sh
+npx parcel src/index.html
+```
+4. Create `src/styles.css` and `src/app.js`
+  - src/styles.css
+```css
+h1 {
+  color: hotpink;
+  font-family: cursive;
+}
+```
+  - src/app.js
+```js
+console.log('Hello world!');
+```
+5. alter `src/index.html`
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>My First Parcel App</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <h1>Hello, World!</h1>
+  </body>
+</html>
+```
+6. alter `package.json`
+```json
+{
+  "name": "fragments-ui",
+  "source": "src/index.html",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html"
+  },
+  "devDependencies": {
+    "parcel": "latest"
+  }
+}
+```
+> if you are not using `Parcel`, change the port setting. go to **Amazon Cognito** > User Pools > fragments-users > App integration > choose your `fragments-ui` app client at the bottom, then click Edit beside the **Hosted UI** options. Make sure your Allowed callback URLs has correct URL for your local development environment.
+#### Connect Web App to User Pool: Amazon's aws-amplify
+1. To Simplify connecting our web app to our Cognito User Pool and Hosted UI, we'll use Amazon's [aws-amplify](https://www.npmjs.com/package/aws-amplify) **JavaScript SDK**, which includes an auth module.
+> We are also going to use the latest 5.x.y release vs. the current 6.x.y release, due to some breaking API changes.
+2. In `fragments-ui` folder, install aws-amplify
+```sh
+npm install --save aws-amplify@^5.0.0
+```
+3. alter `src/index.html`
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fragments UI</title>
+    <link rel="stylesheet" href="https://unpkg.com/bamboo.css" />
+    <script type="module" src="src/app.js"></script>
+  </head>
+  <body>
+    <h1>Fragments UI</h1>
+    <section>
+      <nav><button id="login">Login</button> <button id="logout">Logout</button></nav>
+    </section>
+    <section hidden id="user">
+      <h2>Hello <span class="username"></span>!</h2>
+    </section>
+  </body>
+</html>
+```
+4. Create an `.env` file in `fragments-ui` root folder to define some [environment variables](https://en.wikipedia.org/wiki/Environment_variable).
+ - VARIABLE=VALUE (NOTE: no spaces, no quotes)
+ - comment: `# This is a comment`
+```ini
+# .env
+
+# fragments microservice API URL (make sure this is the right port for you)
+API_URL=http://localhost:8080
+
+# AWS Amazon Cognito User Pool ID (use your User Pool ID)
+AWS_COGNITO_POOL_ID=us-east-1_xxxxxxxxx
+
+# AWS Amazon Cognito Client App ID (use your Client App ID)
+AWS_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# AWS Amazon Cognito Host UI domain (use your domain only, not the full URL)
+AWS_COGNITO_HOSTED_UI_DOMAIN=xxxxxxxx.auth.us-east-1.amazoncognito.com
+
+# OAuth Sign-In Redirect URL (use the port for your fragments-ui web app)
+OAUTH_SIGN_IN_REDIRECT_URL=http://localhost:1234
+
+# OAuth Sign-Out Redirect URL (use the port for your fragments-ui web app)
+OAUTH_SIGN_OUT_REDIRECT_URL=http://localhost:1234
+```
+5. Ignore `.env` to github, confirm `.gitignore` includes `.env`
+```ini
+# Don't include .env, which might have sensitive information
+.env
+```
+6. Create a `src/auth.js`, it will do [OAuth2 Authorization Code Grant](https://developer.okta.com/blog/2018/04/10/oauth-authorization-code-grant-type). Use the process.env global to access our environment variables:
+> we first need to configure the Auth client with our User Pool details, and provide a way to get the authenticated user's info.
+```js
+// src/auth.js
+
+import { Amplify, Auth } from 'aws-amplify';
+
+// Configure our Auth object to use our Cognito User Pool
+Amplify.configure({
+  Auth: {
+    // Amazon Region. We can hard-code this (we always use the us-east-1 region)
+    region: 'us-east-1',
+
+    // Amazon Cognito User Pool ID
+    userPoolId: process.env.AWS_COGNITO_POOL_ID,
+
+    // Amazon Cognito App Client ID (26-char alphanumeric string)
+    userPoolWebClientId: process.env.AWS_COGNITO_CLIENT_ID,
+
+    // Hosted UI configuration
+    oauth: {
+      // Amazon Hosted UI Domain
+      domain: process.env.AWS_COGNITO_HOSTED_UI_DOMAIN,
+
+      // These scopes must match what you set in the User Pool for this App Client
+      // The default based on what we did above is: email, phone, openid. To see
+      // your app's OpenID Connect scopes, go to Amazon Cognito in the AWS Console
+      // then: Amazon Cognito > User pools > {your user pool} > App client > {your client}
+      // and look in the "Hosted UI" section under "OpenID Connect scopes".
+      scope: ['email', 'phone', 'openid'],
+
+      // NOTE: these must match what you have specified in the Hosted UI
+      // app settings for Callback and Redirect URLs (e.g., no trailing slash).
+      redirectSignIn: process.env.OAUTH_SIGN_IN_REDIRECT_URL,
+      redirectSignOut: process.env.OAUTH_SIGN_OUT_REDIRECT_URL,
+
+      // We're using the Access Code Grant flow (i.e., `code`)
+      responseType: 'code',
+    },
+  },
+});
+
+/**
+ * Get the authenticated user
+ * @returns Promise<user>
+ */
+async function getUser() {
+  try {
+    // Get the user's info, see:
+    // https://docs.amplify.aws/lib/auth/advanced/q/platform/js/#identity-pool-federation
+    const currentAuthenticatedUser = await Auth.currentAuthenticatedUser();
+
+    // Get the user's username
+    const username = currentAuthenticatedUser.username;
+
+    // If that didn't throw, we have a user object, and the user is authenticated
+    console.log('The user is authenticated', username);
+
+    // Get the user's Identity Token, which we'll use later with our
+    // microservice. See discussion of various tokens:
+    // https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-with-identity-providers.html
+    const idToken = currentAuthenticatedUser.signInUserSession.idToken.jwtToken;
+    const accessToken = currentAuthenticatedUser.signInUserSession.accessToken.jwtToken;
+
+    // Return a simplified "user" object
+    return {
+      username,
+      idToken,
+      accessToken,
+      // Include a simple method to generate headers with our Authorization info
+      authorizationHeaders: (type = 'application/json') => {
+        const headers = { 'Content-Type': type };
+        headers['Authorization'] = `Bearer ${idToken}`;
+        return headers;
+      },
+    };
+  } catch (err) {
+    console.log(err);
+    // Unable to get user, return `null` instead
+    return null;
+  }
+}
+
+export { Auth, getUser };
+```
+7. alter `src/app.js`, it should use `src/auth.js` to handle authentication, get `user` and update UI
+```js
+// src/app.js
+
+import { Auth, getUser } from './auth';
+
+async function init() {
+  // Get our UI elements
+  const userSection = document.querySelector('#user');
+  const loginBtn = document.querySelector('#login');
+  const logoutBtn = document.querySelector('#logout');
+
+  // Wire up event handlers to deal with login and logout.
+  loginBtn.onclick = () => {
+    // Sign-in via the Amazon Cognito Hosted UI (requires redirects), see:
+    // https://docs.amplify.aws/lib/auth/advanced/q/platform/js/#identity-pool-federation
+    Auth.federatedSignIn();
+  };
+  logoutBtn.onclick = () => {
+    // Sign-out of the Amazon Cognito Hosted UI (requires redirects), see:
+    // https://docs.amplify.aws/lib/auth/emailpassword/q/platform/js/#sign-out
+    Auth.signOut();
+  };
+
+  // See if we're signed in (i.e., we'll have a `user` object)
+  const user = await getUser();
+  if (!user) {
+    // Disable the Logout button
+    logoutBtn.disabled = true;
+    return;
+  }
+
+  // Log the user info for debugging purposes
+  console.log({ user });
+
+  // Update the UI to welcome the user
+  userSection.hidden = false;
+
+  // Show the user's username
+  userSection.querySelector('.username').innerText = user.username;
+
+  // Disable the Login button
+  loginBtn.disabled = true;
+}
+
+// Wait for the DOM to be ready, then start the app
+addEventListener('DOMContentLoaded', init);
+```
+#### Test Authentication Flows
+1. Start your web app locally `npm start` and open browser on http://localhost:1234
+2. Click Login, You should be redirected to your Hosted UI domain
+3. In the Hosted UI, create a new user by clicking the Sign up link. Enter your desired Username, Name, Email, and Password. Click the Sign up button, and you verify account, by entering a Verification Code from email.
+4. Try Logout and Login flow, ensure your UI works as expect
+5. After successfully logging in, inspect the `user` object in the Dev Tools console. Ensure the `username` is correct, and that you have an `idToken` and `accessToken` **JSON Web Tokens (JWT)**. One-by-one, copy these JWTs and paste them into the JWT Debugger at [jwt.io](https://jwt.io/). Make sure the tokens are valid and can be decoded, and that the claims you see make sense (i.e., match the user you logged in with).
+6. Go back to AWS Console and the Cognito page, find the user you created.
+7. We have created our first AWS service. See which files changed then `add` and `commit` to git.
+```sh
+git status
+
+git add ...
+git commit -m "Add eslint"
+```
 ## Student Information
 - Student Name: Shanyun, Wang
 - Student ID: 133159228
 
 ## Version History
+- 2024-09-16 v01.1
+  * 
 - 2024-09-09 v01
   * version 01 initial
 
@@ -527,3 +937,5 @@ git commit -m "Add eslint"
 - [npmjs](https://www.npmjs.com/)
 - [Health Check](https://www.ibm.com/garage/method/practices/manage/health-check-apis/) to determine if the server is accepting requests
 - [jq](https://jqlang.github.io/jq/tutorial/)
+- AWS
+  * [AWS Management Console](https://aws.amazon.com/console/faq-console/)
