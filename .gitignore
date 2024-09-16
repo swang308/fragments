@@ -1,5 +1,7 @@
 # Don't include .env, which might have sensitive information
 .env
+
+.DS_Store
 # Logs
 logs
 *.log
