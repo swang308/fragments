@@ -1,7 +1,9 @@
 # Don't include .env, which might have sensitive information
 .env
 
+# Don't include .DS_Store, which is a macOS system file
 .DS_Store
+
 # Logs
 logs
 *.log
