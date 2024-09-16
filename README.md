@@ -1,5 +1,4 @@
 # CCP555 NSA course - fragments API
-
 This guide outlines setting up a Node.js-based REST API using Express for the CCP555 NSA course. The API, Fragments, is developed using best practices for logging, code formatting, and linting. The guide walks through Git usage, setting up the development environment, and configuring tools like Prettier, ESLint, and structured logging with Pino.
 
 ## Git Command
@@ -7,17 +6,25 @@ This guide outlines setting up a Node.js-based REST API using Express for the CC
 - `git status` to see which files changed
 
 ## Run Server
-- To run server, use command: `node src/server.js`
+- To run server, use command: `npm start`
+> `npm run dev`: for developer, and `npm run debug`: for debug
 - Access the application in a browser: `http://localhost:8080`
 
 ## Structure and Route Information
 ```bash
 fragements/
+├── .aws/
+│   ├── credentials    # Store your AWS credentials     
 ├── .vscode/
 │   ├── launch.json    # To connect a debugger     
 │   ├── settings.json  # Sepcific settings       
 ├── node_modules/
 ├── src/
+│   ├── routes/
+│   │  ├─ api/
+│   │  │  ├─ get.js
+│   │  │  ├─ index.js
+│   │  ├─ index.js
 │   ├── app.js         # Express app configuration
 │   ├── server.js      # Server entry point
 │   ├── logger.js      # Logger utility
@@ -29,6 +36,7 @@ fragements/
 ├── package.json       # Project metadata and dependencies
 └── README.md          # Project documentation
 ```
+
 ## Getting Started
 ### Prerequisites
 Confirm version is up-to-date
@@ -44,7 +52,6 @@ Confirm version is up-to-date
 - Extra tools for Windows
   * [WSL2](https://www.windowscentral.com/how-install-wsl2-windows-10)
   * [Windows Terminal](https://www.microsoft.com/en-ca/p/windows-terminal/9n0dx20hk701#activetab=pivot:overviewtab)
-
 ### Installing
 #### API Server
 We create node.js based REST API using [Express](https://expressjs.com/)
@@ -154,7 +161,7 @@ package-lock.json
 7. Save and commit
 ```sh
 git add package.json package-lock.json .prettierignore .prettierrc .vscode/settings.json
-git commit -m "Add prettier"
+git commit -m "Write_what_is_change"
 ```
 #### ESLint
 1. Open terminal, setup [ESLint](https://eslint.org/docs/user-guide/getting-started), run `npm audit fix` if you have vulnerabilities
@@ -215,7 +222,7 @@ export default [
 git status
 
 git add eslint.config.mjs package-lock.json package.json
-git commit -m "Add eslint"
+git commit -m "Write_what_is_change"
 ``` 
 #### Structured Logging and Pino
 1. Create a `src/` folder to store all source code
@@ -254,7 +261,7 @@ module.exports = require('pino')(options);
 git status
 
 git add eslint.config.mjs package-lock.json package.json
-git commit -m "Add eslint"
+git commit -m "Write_what_is_change"
 ```
 #### Express App
 1. Install packages necessary for [Express app](https://expressjs.com/)
@@ -453,7 +460,7 @@ Keep-Alive: timeout=5
 git status
 
 git add eslint.config.mjs package-lock.json package.json
-git commit -m "Add eslint"
+git commit -m "Write_what_is_change"
 ```
 #### Server Startup Scripts
 1. Install [nodemon](https://nodemon.io/) package, it helps automatically reload our server whenever the code changes
@@ -505,7 +512,7 @@ npm run debug
 git status
 
 git add eslint.config.mjs package-lock.json package.json
-git commit -m "Add eslint"
+git commit -m "Write_what_is_change"
 ```
 
 ## Connect to AWS Services
@@ -522,7 +529,6 @@ git commit -m "Add eslint"
 > Monitor spending using the information at the top of the lab, it oftne delayed by up to 8 hours
 6. AWS CLI terminal is also available in the lab view. It is automatically configured with your current AWS Security Credentials, and you can use the AWS CLI to manage your AWS services. 
 > Use `aws help` to see help info (press `space` to scroll, `q` to exit).
-
 ### Store AWS Security Credentials
 1. In AWS Academy Learner Lab browser tab, click AWS Details and it will show various details including AWS CLI Sow buttton
 2. Click show and it reveal yor [AWS Security Credentails](https://docs.aws.amazon.com/general/latest/gr/aws-security-credentials.html), including a profile name, access key, a secret access key, and a session token. Example:
@@ -536,16 +542,12 @@ aws_session_token=AQoEXAMPLEH4aoAH0gNCAPy...rkuWJOgQs8IZZaIv2BXIa2R4Olgk
 3. Create a `.aws/` folder in your home directory and a file named `credentials`
 4. These credentials show be kept secret, DO NOT SHARE!
 > Your Account credentials (e.g., session token) will change each time you start and stop the lab environment.
-
 ### AWS Management Console
 1. In AWS Academy Learner Lab browser tab, click `AWS`. It open the **AWS Management Console** logged into your account
 2. Click **Services** button (on the top left).
 3. Search `Cognito`, this will be our first service.
-
 ### Amazon Cognito
-
 [Amazon Cognito](https://aws.amazon.com/cognito/) allows you to add **authentication**, **authorization**, and **user management** to your web and mobile applications. The service is free for firste 50,000 users each month, let's see more details about [User Pools](https://docs.aws.amazon.com/cognito/latest/developerguide/getting-started-user-pools.html).
-
 #### Amazon Cognito User Pool Setup
 
 The **User Pool** helps to manage user registration and sign-in. We can use it to authenticate users directly or integrate with social identity providers like Google, Facebook, and so on. it also support two factor authentication to add an extra layer of security.
@@ -613,11 +615,8 @@ The **User Pool** helps to manage user registration and sign-in. We can use it t
     * Domain: Find the Cognito domain for your OAuth endpoint and login page.
     * App client list: Find your fragments-ui app's Client ID. This will look something like `3a6mndd57472vkm1nmcs2od9u3`. 
   - User pool properties
-
 ### Create the `fragments-ui` web app and repo
-
 We create a simple web app for testing our microservice.
-
 #### Reminder
 - `Parcel` uses: http://localhost:1234
 #### Create Github repo
@@ -918,12 +917,364 @@ addEventListener('DOMContentLoaded', init);
 git status
 
 git add ...
-git commit -m "Add eslint"
+git commit -m "Write_what_is_change"
+```
+
+## Secure `fragments` Routes
+Add the infrastructure we need to properly authorize users with a Cognito Identity token.
+### Setup `fragments`
+1. In the root of `fragments`, install the [dotenv](https://www.npmjs.com/package/dotenv). It helps us to read **Environment Variables** from an `.env` file, and load the into our node server's environment at startup:
+```sh
+npm install --save dotenv
+git add package.json package-lock.json
+git commit -m "Add dotenv"
+```
+2. change the default entry point from `src/server.js` to use a new file: `src/index.js`. In `src/index.js`, we load environment variables from an `.env` file.
+```js
+// src/index.js
+
+// Read environment variables from an .env file (if present)
+// NOTE: we only need to do this once, here in our app's main entry point.
+require('dotenv').config();
+
+// We want to log any crash cases so we can debug later from logs.
+const logger = require('./logger');
+
+// If we're going to crash because of an uncaught exception, log it first.
+// https://nodejs.org/api/process.html#event-uncaughtexception
+process.on('uncaughtException', (err, origin) => {
+  logger.fatal({ err, origin }, 'uncaughtException');
+  throw err;
+});
+
+// If we're going to crash because of an unhandled promise rejection, log it first.
+// https://nodejs.org/api/process.html#event-unhandledrejection
+process.on('unhandledRejection', (reason, promise) => {
+  logger.fatal({ reason, promise }, 'unhandledRejection');
+  throw reason;
+});
+
+// Start our server
+require('./server');
+```
+3. Create an `.env` file in the root of your `fragments` repo. Set `PORT` in the file:
+```ini
+# port to use when starting the server
+PORT=8080
+
+# which log messages to show (usually `info` for production, `debug` for development, `silent` to disable)
+LOG_LEVEL=debug
+```
+4. Run server `npm start` and see if it starts on port `8080`. Stop the server, and change port to `9000` in `.env` file. Ensure it works, and change back.
+
+5. Confirm the `.gitignore` includes `.env`
+```ini
+# Don't include .env, which might have sensitive information
+.env
+```
+6. In `package.json`, modify the startup scripts to `src/index.js`. Confirm `npm start`, `npm run dev`, and `npm run debu`g all continue to work.
+7. See which files changed then `add` and `commit` to git.
+```sh
+git status
+
+git add ...
+git commit -m "Write_what_is_change"
+```
+### Update structure
+Add a src/routes/* folder, and associated files, and it should looks like:
+```bash
+fragments/
+├─ package.json
+├─ node_modules/
+├─ src/
+│  ├─ routes/
+│  │  ├─ index.js
+│  │  ├─ api/
+|  │  │  ├─ index.js
+|  │  │  ├─ get.js
+│  ├─ index.js
+│  ├─ server.js
+│  ├─ app.js
+│  ├─ logger.js
+├─ ...
+```
+1. Do that at the command-line:
+```sh
+mkdir -p src/routes/api
+touch src/routes/index.js
+touch src/routes/api/index.js
+touch src/routes/api/get.js
+```
+2. Modify `src/app.js` file to remove the current health check route (and associated code), and move that logic into `src/routes/index.js`:
+```js
+// modifications to src/app.js
+
+// Remove `app.get('/', (req, res) => {...});` and replace with:
+
+// Define our routes
+app.use('/', require('./routes'));
+```
+3. Update the code in `src/routes/index.js`:
+```js
+// src/routes/index.js
+
+const express = require('express');
+
+// version and author from package.json
+const { version, author } = require('../../package.json');
+
+// Create a router that we can use to mount our API
+const router = express.Router();
+
+/**
+ * Expose all of our API routes on /v1/* to include an API version.
+ */
+router.use(`/v1`, require('./api'));
+
+/**
+ * Define a simple health check route. If the server is running
+ * we'll respond with a 200 OK.  If not, the server isn't healthy.
+ */
+router.get('/', (req, res) => {
+  // Client's shouldn't cache this response (always request it fresh)
+  res.setHeader('Cache-Control', 'no-cache');
+  // Send a 200 'OK' response
+  res.status(200).json({
+    status: 'ok',
+    author,
+    // Use your own GitHub URL for this!
+    githubUrl: 'https://github.com/REPLACE_WITH_YOUR_GITHUB_USERNAME/fragments',
+    version,
+  });
+});
+
+module.exports = router;
+```
+4. Start to define the fragments API endpoints in `src/routes/api/index.js`
+```js
+// src/routes/api/index.js
+
+/**
+ * The main entry-point for the v1 version of the fragments API.
+ */
+const express = require('express');
+
+// Create a router on which to mount our API endpoints
+const router = express.Router();
+
+// Define our first route, which will be: GET /v1/fragments
+router.get('/fragments', require('./get'));
+// Other routes (POST, DELETE, etc.) will go here later on...
+
+module.exports = router;
+```
+5. Start an initial implementation of the GET /v1/fragments route in `src/routes/api/get.js`:
+```js
+// src/routes/api/get.js
+
+/**
+ * Get a list of fragments for the current user
+ */
+module.exports = (req, res) => {
+  // TODO: this is just a placeholder. To get something working, return an empty array...
+  res.status(200).json({
+    status: 'ok',
+    // TODO: change me
+    fragments: [],
+  });
+};
+```
+6. Test and Run to see everything still works, ensure the `curl localhost:8080` and `curl localhost:8080/v1/fragments` also give you response you expect.
+7. See which files changed then `add` and `commit` to git.
+```sh
+git status
+
+git add ...
+git commit -m "Write_what_is_change"
+```
+### Add JWT token with Passport.js
+Add necessary dependencies to use a JWT token to secure our Express routes with [Passport.js](https://www.passportjs.org/)(Including [passport](https://www.npmjs.com/package/passport), [passport-http-bearer](https://www.npmjs.com/package/passport-http-bearer), and [aws-jwt-verify](https://www.npmjs.com/package/aws-jwt-verify)). Our microservice will use Passport.js to parse the `Authorization` header of all incoming requests and look for a `Bearer` token. We'll then verify this token with the AWS JWT Verifier module, and make sure that we can trust the user's identity.
+> The aws-jwt-verify module previously needed to be set to 2.1.3 vs. 3.x due to a [bug](https://github.com/awslabs/aws-jwt-verify/issues/66) in how it [interacts with Jest](https://github.com/facebook/jest/issues/12270). This should be fixed, but be aware that you can use aws-jwt-verify@2.1.3 instead of aws-jwt-verify below if you have issues.
+1. Install passport, passport-http-bearer, and aws-jwt-verify
+```sh
+npm install --save passport passport-http-bearer aws-jwt-verify
+```
+2. Add configuration information to `.env`, it helps **AWS JWT Verifier** knows about your Cognito User Pool (NOTE: use the values you wrote down above for the Amazon Cognito IDs):
+```ini
+# Port for the server
+PORT=8080
+
+# which log messages to show (usually `info` for production, `debug` for development, `silent` to disable)
+LOG_LEVEL=debug
+
+# AWS Amazon Cognito User Pool ID (use your User Pool ID)
+AWS_COGNITO_POOL_ID=us-east-1_xxxxxxxxx
+
+# AWS Amazon Cognito Client App ID (use your Client App ID)
+AWS_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+3. Create a `src/auth.js` file to define our Passport strategy and authentication functions:
+```js
+// src/auth.js
+
+// Configure a JWT token strategy for Passport based on
+// Identity Token provided by Cognito. The token will be
+// parsed from the Authorization header (i.e., Bearer Token).
+
+const passport = require('passport');
+const BearerStrategy = require('passport-http-bearer').Strategy;
+const { CognitoJwtVerifier } = require('aws-jwt-verify');
+
+const logger = require('./logger');
+
+// Create a Cognito JWT Verifier, which will confirm that any JWT we
+// get from a user is valid and something we can trust. See:
+// https://github.com/awslabs/aws-jwt-verify#cognitojwtverifier-verify-parameters
+const jwtVerifier = CognitoJwtVerifier.create({
+  // These variables must be set in the .env
+  userPoolId: process.env.AWS_COGNITO_POOL_ID,
+  clientId: process.env.AWS_COGNITO_CLIENT_ID,
+  // We expect an Identity Token (vs. Access Token)
+  tokenUse: 'id',
+});
+
+// Later we'll use other auth configurations, so it's important to log what's happening
+logger.info('Configured to use AWS Cognito for Authorization');
+
+// At startup, download and cache the public keys (JWKS) we need in order to
+// verify our Cognito JWTs, see https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-sets
+// You can try this yourself using:
+// curl https://cognito-idp.us-east-1.amazonaws.com/<user-pool-id>/.well-known/jwks.json
+jwtVerifier
+  .hydrate()
+  .then(() => {
+    logger.info('Cognito JWKS successfully cached');
+  })
+  .catch((err) => {
+    logger.error({ err }, 'Unable to cache Cognito JWKS');
+  });
+
+module.exports.strategy = () =>
+  // For our Passport authentication strategy, we'll look for the Bearer Token
+  // in the Authorization header, then verify that with our Cognito JWT Verifier.
+  new BearerStrategy(async (token, done) => {
+    try {
+      // Verify this JWT
+      const user = await jwtVerifier.verify(token);
+      logger.debug({ user }, 'verified user token');
+
+      // Create a user, but only bother with their email. We could
+      // also do a lookup in a database, but we don't need it.
+      done(null, user.email);
+    } catch (err) {
+      logger.error({ err, token }, 'could not verify token');
+      done(null, false);
+    }
+  });
+
+module.exports.authenticate = () => passport.authenticate('bearer', { session: false });
+```
+4. Run the server `npm run dev` to check the `Cognito JWKS cached` message gets logged, should be like:
+```bash
+[22:04:08.850] INFO (9424): Configured to use AWS Cognito for Authorization
+[22:04:08.879] INFO (9424): Server started on port 8080
+[22:04:08.985] INFO (9424): Cognito JWKS successfully cached
+```
+5. Update `src/routes/index.js` to use our authenticate middleware for all of the /v1/* routes:
+```js
+// modifications to src/routes/index.js
+...
+// Our authentication middleware
+const { authenticate } = require('../auth');
+...
+/**
+ * Expose all of our API routes on /v1/* to include an API version.
+ * Protect them all with middleware so you have to be authenticated
+ * in order to access things.
+ */
+router.use(`/v1`, authenticate(), require('./api'));
+...
+```
+6. Run server and ensure
+  - `curl -i localhost:8080` returns a 200
+  - `curl -i localhost:8080/v1/fragments` returns a 401 Unauthorized. 
+7. If they don't work how you expect, debug and fix things until they do.
+8. See which files changed then `add` and `commit` to git.
+```sh
+git status
+
+git add ...
+git commit -m "Write_what_is_change"
+```
+## Connect Client Web App to Secure Microservice
+Our goal is to have a user sign-in via our web app, then use the token we get back from AWS to do a secure GET request to our microservice. If all goes we'll we'll get back a 200 with some data that we can log to the browser console.
+### `fragments-ui` Web App
+1. In `fragments-ui` web app repo, add a new file `src/api.js`. We define a function to get a user's fragments from the fragments microservice:
+```js
+// src/api.js
+
+// fragments microservice API to use, defaults to localhost:8080 if not set in env
+const apiUrl = process.env.API_URL || 'http://localhost:8080';
+
+/**
+ * Given an authenticated user, request all fragments for this user from the
+ * fragments microservice (currently only running locally). We expect a user
+ * to have an `idToken` attached, so we can send that along with the request.
+ */
+export async function getUserFragments(user) {
+  console.log('Requesting user fragments data...');
+  try {
+    const res = await fetch(`${apiUrl}/v1/fragments`, {
+      // Generate headers with the proper Authorization bearer token to pass.
+      // We are using the `authorizationHeaders()` helper method we defined
+      // earlier, to automatically attach the user's ID token.
+      headers: user.authorizationHeaders(),
+    });
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    const data = await res.json();
+    console.log('Successfully got user fragments data', { data });
+    return data;
+  } catch (err) {
+    console.error('Unable to call GET /v1/fragment', { err });
+  }
+}
+```
+2. In `src/app.js` call `getUserFragments()` function when a user is authenticated on page load:
+```js
+// modifications to src/app.js
+...
+import { getUserFragments } from './api';
+...
+async function init() {
+  ...
+  const user = await getUser();
+  ...
+  // Do an authenticated request to the fragments API server and log the result
+  const userFragments = await getUserFragments(user);
+
+  // TODO: later in the course, we will show all the user's fragments in the HTML...
+}
+```
+3. Open two terminals
+  - First one to run your web app client
+    * Start `fragments` server on port 8080 using npm run dev.
+  - Second one to run your microservice at the same time.
+    * Start `fragments-ui` web app client on port `1234`. Browse to your `fragments-ui` **front-end web app** and open your browser's Dev Tools so that you can see the Console.
+4. Click the **Login** button and sign-in with Cognito. When you are redirected back to your web app, make sure the console shows a successful result for the authenticated GET /v1/fragment request.
+5. Take a look at the logs that your `fragments` server produced. Ensure you see the successful request and response, and that the token is being sent in the Authorization header.
+6. If they don't work how you expect, debug and fix things until they do.
+7. See which files changed then `add` and `commit` to git.
+```sh
+git status
+
+git add ...
+git commit -m "Write_what_is_change"
 ```
 ## Student Information
 - Student Name: Shanyun, Wang
 - Student ID: 133159228
-
 ## Version History
 - 2024-09-16 v01.1
   * 
