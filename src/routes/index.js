@@ -11,17 +11,6 @@ const router = express.Router();
 // Our authentication middleware
 const { authenticate } = require('../auth');
 
-// /**
-//  * Expose all of our API routes on /v1/* to include an API version.
-//  */
-// router.use(`/v1`, require('./api'));
-/**
- * Expose all of our API routes on /v1/* to include an API version.
- * Protect them all with middleware so you have to be authenticated
- * in order to access things.
- */
-router.use(`/v1`, authenticate(), require('./api'));
-
 /**
  * Define a simple health check route. If the server is running
  * we'll respond with a 200 OK.  If not, the server isn't healthy.
@@ -39,5 +28,11 @@ router.get('/', (req, res) => {
   });
 });
 
+/**
+ * Expose all of our API routes on /v1/* to include an API version.
+ * Protect them all with middleware so you have to be authenticated
+ * in order to access things.
+ */
+router.use(`/v1`, authenticate(), require('./api'));
 
 module.exports = router;
