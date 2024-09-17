@@ -24,15 +24,15 @@ fragements/
 ├── src/
 │   ├── routes/
 │   │  ├─ api/
-│   │  │  ├─ get.js
-│   │  │  ├─ index.js
-│   │  ├─ index.js
+│   │  │  ├─ get.js    # Get a list of current user
+│   │  │  ├─ index.js  # Define our routes here
+│   │  ├─ index.js     # Access to api folder
 │   ├── app.js         # Express app configuration
-│   ├── auth.js         # Express app configuration
-│   ├── index.js      # Server entry point
-│   ├── logger.js      # Logger utility
+│   ├── auth.js        # Define our Passport strategy and authentication
+│   ├── index.js       # Server entry point with .env
+│   ├── logger.js      # To log various types of information
 │   ├── server.js      # Server entry point
-├── .env         # Ignore unnecessary files for git
+├── .env               # Stroe credentails
 ├── .gitignore         # Ignore unnecessary files for git
 ├── .prettierignore    # Ignore unnecessary files for prettier
 ├── .prettierrc
@@ -924,7 +924,6 @@ git status
 git add ...
 git commit -m "Write_what_is_change"
 ```
-
 ## Secure `fragments` Routes
 Add the infrastructure we need to properly authorize users with a Cognito Identity token.
 ### Setup `fragments`
@@ -1285,7 +1284,7 @@ git commit -m "Write_what_is_change"
 
 ## Version History
 - 2024-09-16 v01.1
-  * 
+  * v01.1 Add fragments-ui to handle web app, which will allow users to authenticate, and only then can they communicate securely with our back-end web service.
 - 2024-09-09 v01
   * version 01 initial
 
