@@ -11,6 +11,16 @@ const router = express.Router();
 // Our authentication middleware
 const { authenticate } = require('../auth');
 
+const { createSuccessResponse } = require('../response');
+
+/**
+ * Define a simple health check route. If the server is running
+ * we'll respond with a 200 OK.  If not, the server isn't healthy.
+ */
+router.get('/health', (req, res) => {
+  res.json(createSuccessResponse({ status: 'health check ok' }));
+})
+
 /**
  * Define a simple health check route. If the server is running
  * we'll respond with a 200 OK.  If not, the server isn't healthy.

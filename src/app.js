@@ -19,6 +19,8 @@ const pino = require('pino-http')({
 // Create an express app instance we can use to attach middleware and HTTP routes
 const app = express();
 
+const { createErrorResponse } = require('./response');
+
 // Use pino logging middleware
 app.use(pino);
 
@@ -62,14 +64,17 @@ app.use((err, req, res, next) => {
     logger.error({ err }, `Error processing request`);
   }
 
-  res.status(status).json({
-    status: 'error',
-    error: {
-      message,
-      code: status,
-    },
-  });
+  res.status(status).json(
+    // status: 'error',
+    // error: {
+    //   message,
+    //   code: status,
+    // },
+    createErrorResponse(status, message)
+  );
 });
+
+
 
 // Export our `app` so we can access it in server.js
 module.exports = app;
