@@ -3,16 +3,16 @@
 # Continuous Integration (CI) Workflow
 name: ci
 
-# This workflow will run whenever we push commits to the `main` branch, or
-# whenever there's a pull request to the `main` branch. See:
+# This workflow will run whenever we push commits to the `master` branch, or
+# whenever there's a pull request to the `master` branch. See:
 # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#on
 on:
   pull_request:
     branches:
-      - main
+      - master
   push:
     branches:
-      - main
+      - master
 
 jobs:
   lint:
