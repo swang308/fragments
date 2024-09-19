@@ -12,6 +12,14 @@ This guide outlines setting up a Node.js-based REST API using Express for the CC
 > NOTE:`npm run dev`: for developer, and `npm run debug`: for debug
 - Access the application in a browser: `http://localhost:8080`
 
+## Test
+- npm run test:watch
+- npm test
+
+## Continuous Integration (CI)
+- You never leave CI in a **broken state**, the source tree must always stay **green**
+
+
 ## Structure and Route Information
 ```bash
 fragements/
@@ -1278,6 +1286,9 @@ git add ...
 git commit -m "Write_what_is_change"
 ```
 
+## CI
+## Unit Test
+
 ## Student Information
 - Student Name: Shanyun, Wang
 - Student ID: 133159228
@@ -1300,3 +1311,7 @@ git commit -m "Write_what_is_change"
 - Continuous Integration
   * [YAMLYAML](https://en.wikipedia.org/wiki/YAML)
   * [Learn the basics of YAML in a few minutes](https://learnxinyminutes.com/docs/yaml/)
+- Unit test
+  * [Unit test](https://en.wikipedia.org/wiki/Unit_testing)
+  * [Jest](https://jestjs.io/)
+  * [Let It Crash: Best Practices for Handling Node.js Errors on Shutdown](https://blog.heroku.com/best-practices-nodejs-errors)
