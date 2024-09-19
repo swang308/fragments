@@ -1297,3 +1297,6 @@ git commit -m "Write_what_is_change"
 - [jq](https://jqlang.github.io/jq/tutorial/)
 - AWS
   * [AWS Management Console](https://aws.amazon.com/console/faq-console/)
+- Continuous Integration
+  * [YAMLYAML](https://en.wikipedia.org/wiki/YAML)
+  * [Learn the basics of YAML in a few minutes](https://learnxinyminutes.com/docs/yaml/)
