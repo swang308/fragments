@@ -8,46 +8,72 @@ This guide outlines setting up a Node.js-based REST API using Express for the CC
 - `git commit -m "What_change"` to leave comment to which files changed
 
 ## Run Server
-- To run server, use command: `npm start`
+- To run server, use command
+  * `npm start`
 > NOTE:`npm run dev`: for developer, and `npm run debug`: for debug
-- Access the application in a browser: `http://localhost:8080`
+- Access the application in a browser
+  * `http://localhost:8080`
+- Run ESLint
+  * npm run lint
 
 ## Test
-- npm run test:watch
-- npm test
+- Run test in `watch` mode
+  * npm run test:watch
+- Run test of `get.test.js` in `watch` mode
+  * npm run test:watch get.test.js
+- Run test
+  * npm test
+- Run test of `get.test.js`
+  * npm test get.test.js
 
 ## Continuous Integration (CI)
 - You never leave CI in a **broken state**, the source tree must always stay **green**
-
 
 ## Structure and Route Information
 ```bash
 fragements/
 ├── .aws/
-│   ├── credentials    # Store your AWS credentials     
+│   ├── credentials       # Store your AWS credentials     
+├── .github/
+│   ├── workflows/
+│   │  ├─ ci.yml          #  A workflow YAML file for our CI job
 ├── .vscode/
-│   ├── launch.json    # To connect a debugger     
-│   ├── settings.json  # Sepcific settings       
+│   ├── launch.json       # To connect a debugger     
+│   ├── settings.json     # Sepcific settings       
+├── coverage/
 ├── node_modules/
 ├── src/
+│   ├── auth/             # Define our Passport strategy and authentication
+│   │  ├─ basic-auth.js
+│   │  ├─ cognito.js
+│   │  ├─ index.js
 │   ├── routes/
 │   │  ├─ api/
-│   │  │  ├─ get.js    # Get a list of current user
-│   │  │  ├─ index.js  # Define our routes here
-│   │  ├─ index.js     # Access to api folder
-│   ├── app.js         # Express app configuration
-│   ├── auth.js        # Define our Passport strategy and authentication
-│   ├── index.js       # Server entry point with .env
-│   ├── logger.js      # To log various types of information
-│   ├── server.js      # Server entry point
-├── .env               # Stroe credentails
-├── .gitignore         # Ignore unnecessary files for git
-├── .prettierignore    # Ignore unnecessary files for prettier
+│   │  │  ├─ get.js       # Get a list of current user
+│   │  │  ├─ index.js     # Define our routes here
+│   │  ├─ index.js        # Access to api folder
+│   ├── app.js            # Express app configuration
+│   ├── index.js          # Server entry point with .env
+│   ├── logger.js         # To log various types of information
+│   ├── response.js       # unit-test file
+│   ├── server.js         # Server entry point
+├── tests/
+│   ├── units/
+│   │  ├── app.test.js       # unit-test file for app.js
+│   │  ├── get.test.js       # unit-test file for get.js
+│   │  ├── health.test.js    # unit-test file for health.js
+│   │  ├── response.test.js  # unit-test file for response.js
+│   │  ├── .htpasswd         # store test user account 
+├── .env                  # Stroe credentails
+├── .gitignore            # Ignore unnecessary files for git
+├── .prettierignore       # Ignore unnecessary files for prettier
 ├── .prettierrc
-├── eslint.config.mjs  # ESLint configuration
-├── package-lock.json  # Package version lock file
-├── package.json       # Project metadata and dependencies
-└── README.md          # Project documentation
+├── env.jest              # Define environment variables
+├── eslint.config.mjs     # ESLint configuration
+├── jest.config.mjs       # jest configuration
+├── package-lock.json     # Package version lock file
+├── package.json          # Project metadata and dependencies
+└── README.md             # Project documentation
 ```
 
 ## Getting Started
@@ -1286,14 +1312,152 @@ git add ...
 git commit -m "Write_what_is_change"
 ```
 
-## CI
+## GitHub Actions Continuous Integration
+### Build YAML file
+1. Create `.github/workflows` in repo
+2. Create a workflow `YAML` file for our Continuous Integration (CI) job:
+ `.github/workflows/ci.yml`
+3. Example of `.github/workflows/ci.yml`
+```yml
+# .github/workflows/ci.yml
+
+# Continuous Integration (CI) Workflow
+name: ci
+
+# This workflow will run whenever we push commits to the `main` branch, or
+# whenever there's a pull request to the `main` branch. See:
+# https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#on
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    # Give your job a name that will show up in the GitHub Actions web UI
+    name: ESLint
+    # We'll run this on a Linux (Ubuntu) VM, since we'll deploy on Linux too.
+    runs-on: ubuntu-latest
+    # We run these steps one after the other, and if any fail, we stop the process
+    steps:
+      # https://github.com/actions/checkout
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # https://github.com/actions/setup-node
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          # Use node LTS https://github.com/actions/setup-node#supported-version-syntax
+          node-version: 'lts/*'
+          # Cache npm dependencies so they don't have to be downloaded next time - https://github.com/actions/setup-node#caching-packages-dependencies
+          cache: 'npm'
+
+      - name: Install node dependencies
+        # Use `ci` vs. `install`, see https://docs.npmjs.com/cli/v8/commands/npm-ci
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+```
+4. See which files changed then `add` and `commit` to git.
+```sh
+git status
+
+git add ...
+git commit -m "Write_what_is_change"
+```
+5. Open `fragments` github repo and click **Actions**
+6. Click **ESLint** to see all the steps
+7. Your latest commit should have a green checkmark next to it, if it has a **red X**, fix it.
+
 ## Unit Test
+### Jest
+1. Install Jest
+```bash
+npm install --save-dev jest
+```
+2. Create an **environment file** in the root of the project for use in our tests: `env.jest`
+```ini
+# env.jest
+
+################################################################################
+# Environment variables with values for running the tests. This file can be
+# committed to git, since it's only used for testing, and won't contain secrets.
+################################################################################
+
+# HTTP Port (defaults to 8080)
+PORT=8080
+
+# Disable logs in tests. If you need to see more detail, change this to `debug`
+LOG_LEVEL=silent
+```
+3. Create a [config file for Jest](https://jestjs.io/docs/configuration), it will load our `env.jest` test enviornment variables and set various options
+```js
+// jest.config.js
+
+// Get the full path to our env.jest file
+const path = require('path');
+const envFile = path.join(__dirname, 'env.jest');
+
+// Read the environment variables we use for Jest from our env.jest file
+require('dotenv').config({ path: envFile });
+
+// Log a message to remind developers how to see more detail from log messages
+console.log(`Using LOG_LEVEL=${process.env.LOG_LEVEL}. Use 'debug' in env.jest for more detail`);
+
+// Set our Jest options, see https://jestjs.io/docs/configuration
+module.exports = {
+  verbose: true,
+  testTimeout: 5000,
+};
+```
+4. Update eslint.config.mjs configuration file so that ESLint knows that we're using Jest
+```mjs
+// eslint.config.mjs
+
+import globals from 'globals';
+import pluginJs from '@eslint/js';
+
+export default [
+  { files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
+  {
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+    },
+  },
+  pluginJs.configs.recommended,
+];
+```
+5. Update `package.json` to run unit-test
+- `test` - run all tests using `jest.config.js` configuration [one-by-one](https://jestjs.io/docs/cli#--runinband) vs. in parallel (it's easier to test serially than in parallel). The final -- means that we'll pass any arguments we receive via the npm invocation to Jest, allowing us to run a single test or set of tests. More on this below.
+- `test:watch` - same idea as test, but don't quit when the tests are finished. Instead, watch the files for changes and re-run tests when we update our code (e.g., save a file). This is helpful when you're editing code and want to run tests in a loop as you edit and save the code.
+- `coverage` - same idea as `test` but collect test coverage information
+```ini
+  "scripts": {
+    "test:watch": "jest -c jest.config.js --runInBand --watch --",
+    "test": "jest -c jest.config.js --runInBand --",
+    "coverage": "jest -c jest.config.js --runInBand --coverage",
+    "lint": "eslint \"./src/**/*.js\"",
+    "start": "node src/index.js",
+    "dev": "LOG_LEVEL=debug nodemon ./src/index.js --watch src",
+    "debug": "LOG_LEVEL=debug nodemon --inspect=0.0.0.0:9229 ./src/index.js --watch src"
+  }
+```
 
 ## Student Information
 - Student Name: Shanyun, Wang
 - Student ID: 133159228
 
 ## Version History
+- 2024-09-16 v01.2
+  * v01.2 add unit test
 - 2024-09-16 v01.1
   * v01.1 Add fragments-ui to handle web app, which will allow users to authenticate, and only then can they communicate securely with our back-end web service.
 - 2024-09-09 v01
