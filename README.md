@@ -958,6 +958,7 @@ git status
 git add ...
 git commit -m "Write_what_is_change"
 ```
+
 ## Secure `fragments` Routes
 Add the infrastructure we need to properly authorize users with a Cognito Identity token.
 ### Setup `fragments`
@@ -1375,7 +1376,7 @@ git commit -m "Write_what_is_change"
 7. Your latest commit should have a green checkmark next to it, if it has a **red X**, fix it.
 
 ## Unit Test
-### Jest
+### Install Jest
 1. Install Jest
 ```bash
 npm install --save-dev jest
@@ -1450,14 +1451,756 @@ export default [
     "debug": "LOG_LEVEL=debug nodemon --inspect=0.0.0.0:9229 ./src/index.js --watch src"
   }
 ```
+6. Run the `test`
+```bash
+$ npm test
+
+> fragments@0.0.1 test
+> jest -c jest.config.js --runInBand --
+
+Using LOG_LEVEL=silent. Use 'debug' in env.jest for more detail
+No tests found, exiting with code 1
+Run with `--passWithNoTests` to exit with code 0
+In /Users/humphd/CCP555/fragments
+  14 files checked.
+  testMatch: **/__tests__/**/*.[jt]s?(x), **/?(*.)+(spec|test).[tj]s?(x) - 0 matches
+  testPathIgnorePatterns: /node_modules/ - 14 matches
+  testRegex:  - 0 matches
+Pattern:  - 0 matches
+```
+### Testing file `src/response.js`
+1. Add a new module to `src/response.js`, and export two functions: `createSuccessResponse()` and `createErrorResponse()`:
+```js
+// src/response.js
+
+/**
+ * A successful response looks like:
+ *
+ * {
+ *   "status": "ok",
+ *   ...
+ * }
+ */
+module.exports.createSuccessResponse = function (data) {
+  return {
+    status: 'ok',
+    // TODO ...
+  };
+};
+
+/**
+ * An error response looks like:
+ *
+ * {
+ *   "status": "error",
+ *   "error": {
+ *     "code": 400,
+ *     "message": "invalid request, missing ...",
+ *   }
+ * }
+ */
+module.exports.createErrorResponse = function (code, message) {
+  // TODO ...
+};
+```
+2. Create folder `tests/unit`
+3. Add a new unit test file, `tests/unit/response.test.js`
+> NOTE: with Jest, the file is named the same as the file it tests, but adds `.test.`; so `response.test.j`s is a test for response.js.
+```js
+// tests/unit/response.test.js
+
+const { createErrorResponse, createSuccessResponse } = require('../../src/response');
+
+// Define (i.e., name) the set of tests we're about to do
+describe('API Responses', () => {
+  // Write a test for calling createErrorResponse()
+  test('createErrorResponse()', () => {
+    const errorResponse = createErrorResponse(404, 'not found');
+    // Expect the result to look like the following
+    expect(errorResponse).toEqual({
+      status: 'error',
+      error: {
+        code: 404,
+        message: 'not found',
+      },
+    });
+  });
+
+  // Write a test for calling createSuccessResponse() with no argument
+  test('createSuccessResponse()', () => {
+    // No arg passed
+    const successResponse = createSuccessResponse();
+    // Expect the result to look like the following
+    expect(successResponse).toEqual({
+      status: 'ok',
+    });
+  });
+
+  // Write a test for calling createSuccessResponse() with an argument
+  test('createSuccessResponse(data)', () => {
+    // Data argument included
+    const data = { a: 1, b: 2 };
+    const successResponse = createSuccessResponse(data);
+    // Expect the result to look like the following
+    expect(successResponse).toEqual({
+      status: 'ok',
+      a: 1,
+      b: 2,
+    });
+  });
+});
+```
+> NOTE: We are using Jest's [`expect()` matchers](https://jestjs.io/docs/expect). These functions provide easy ways to test for various conditions in our test cases. Take a minute to look through the list of all the possible [methods](https://jestjs.io/docs/expect#methods) you can call with `expect()`.
+4. Update your lint script in `package.json`, including this new `tests/ directory` along with `src/` when running ESLint:
+```json
+"lint": "eslint \"./src/**/*.js\" \"tests/**/*.js\"",
+```
+5. Run test, with 3 tests running. The `createSuccessResponse()` test should pass, and the `createErrorResponse()` and `createSuccessResponse(data)` tests should **fail**.
+```bash
+npm test
+```
+6. Run our tests in `watch` mode
+```bash
+npm run test:watch
+```
+7. Modify `src/response.js`
+```js
+module.exports.createSuccessResponse = function (data) {
+  return {
+    status: 'ok',
+    // Use the spread operator to clone `data` into our object, see:
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#spread_in_object_literals
+    ...data,
+  };
+};
+```
+8. Save and test again, you should see 3 of your tests to pass
+
+
+
+####
+### HTTP Unit Tests with Supertest
+With [supertest](https://www.npmjs.com/package/supertest), we can create HTTP requests to our Express routes, and write assertions about what we expect to get back (e.g., which HTTP response code and what should be in the response body).
+> NOTE: A common package we use for writing these tests in node is supertest, which is an HTTP assertion module built on top of [superagent](https://github.com/visionmedia/superagent), an HTTP request library.
+
+1. Install `supertest` module as a development dependency
+```bash
+npm install --save-dev supertest
+```
+2. Create a new unit test file to test your health check route: `tests/unit/health.test.js`
+```js
+// tests/unit/health.test.js
+
+const request = require('supertest');
+
+// Get our Express app object (we don't need the server part)
+const app = require('../../src/app');
+
+// Get the version and author from our package.json
+const { version, author } = require('../../package.json');
+
+describe('/ health check', () => {
+  test('should return HTTP 200 response', async () => {
+    const res = await request(app).get('/');
+    expect(res.statusCode).toBe(200);
+  });
+
+  test('should return Cache-Control: no-cache header', async () => {
+    const res = await request(app).get('/');
+    expect(res.headers['cache-control']).toEqual('no-cache');
+  });
+
+  test('should return status: ok in response', async () => {
+    const res = await request(app).get('/');
+    expect(res.body.status).toEqual('ok');
+  });
+
+  test('should return correct version, githubUrl, and author in response', async () => {
+    const res = await request(app).get('/');
+    expect(res.body.author).toEqual(author);
+    expect(res.body.githubUrl.startsWith('https://github.com/')).toBe(true);
+    expect(res.body.version).toEqual(version);
+  });
+});
+```
+3. Run test, and see why test fail?
+```bash
+$ npm test
+
+> fragments@0.0.1 test
+> jest -c jest.config.js --runInBand --
+
+Using LOG_LEVEL=silent. Use 'debug' in env.jest for more detail
+ PASS  tests/unit/response.test.js
+  API Responses
+    ✓ createErrorResponse() (1 ms)
+    ✓ createSuccessResponse()
+    ✓ createSuccessResponse(data)
+
+ FAIL  tests/unit/health.test.js
+  ● Test suite failed to run
+
+    TypeError: Cannot read properties of undefined (reading 'match')
+
+      12 | // get from a user is valid and something we can trust. See:
+      13 | // https://github.com/awslabs/aws-jwt-verify#cognitojwtverifier-verify-parameters
+    > 14 | const jwtVerifier = CognitoJwtVerifier.create({
+         |                                        ^
+      15 |   userPoolId: process.env.AWS_COGNITO_POOL_ID,
+      16 |   clientId: process.env.AWS_COGNITO_CLIENT_ID,
+      17 |   // We expect an Identity Token (vs. Access Token)
+
+      at Function.parseUserPoolId (node_modules/aws-jwt-verify/dist/cjs/cognito-verifier.js:73:34)
+      at new CognitoJwtVerifier (node_modules/aws-jwt-verify/dist/cjs/cognito-verifier.js:59:39)
+      at Function.create (node_modules/aws-jwt-verify/dist/cjs/cognito-verifier.js:86:16)
+      at Object.<anonymous> (src/auth.js:14:40)
+      at Object.<anonymous> (src/app.js:14:23)
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        0.439 s, estimated 1 s
+Ran all test suites.
+```
+Our tests are failing because the environment variables needed for authentication (`AWS_COGNITO_POOL_ID` and `AWS_COGNITO_CLIENT_ID`) are missing. The test environment doesn't load these variables, leading to a crash when the app tries to use them. Specifically, it fails when calling the `.match()` method on an undefined value.
+### Create Better Error Messages
+Our `src/auth.js` code relies on `AWS_COGNITO_POOL_ID` and `AWS_COGNITO_CLIENT_ID` being defined in the environment. If they're missing, the program will behave unpredictably and may crash with an unhelpful error message, making it hard to trace the issue.
+
+1. Modify `src/auth.js`, with a message indicating that these environment variables are missing
+```js
+// modification to src/auth.js
+
+// Configure a JWT token strategy for Passport based on
+// Identity Token provided by Cognito. The token will be
+// parsed from the Authorization header (i.e., Bearer Token).
+
+const passport = require('passport');
+const BearerStrategy = require('passport-http-bearer').Strategy;
+const { CognitoJwtVerifier } = require('aws-jwt-verify');
+
+const logger = require('./logger');
+
+// We expect AWS_COGNITO_POOL_ID and AWS_COGNITO_CLIENT_ID to be defined.
+if (!(process.env.AWS_COGNITO_POOL_ID && process.env.AWS_COGNITO_CLIENT_ID)) {
+  throw new Error('missing expected env vars: AWS_COGNITO_POOL_ID, AWS_COGNITO_CLIENT_ID');
+}
+...
+```
+2. In your `.env` file, try commenting out one of the AWS_COGNITO_* variables
+3. Run server, `npm start`
+```bash
+$ npm start
+
+> fragments@0.0.1 start
+> node src/index.js
+
+{"level":60,"time":1642790744289,"pid":28264,"hostname":"emone.localdomain","err":{"type":"Error","message":"missing env vars: no authorization configuration found","stack":"Error: missing env vars: no authorization configuration found\n    at Object.<anonymous> (/Users/humphd/Seneca/CCP555/fragments/src/auth/index.js:11:9)\n    at Module._compile (node:internal/modules/cjs/loader:1101:14)\n    at Object.Module._extensions..js (node:internal/modules/cjs/loader:1153:10)\n    at Module.load (node:internal/modules/cjs/loader:981:32)\n    at Function.Module._load (node:internal/modules/cjs/loader:822:12)\n    at Module.require (node:internal/modules/cjs/loader:1005:19)\n    at require (node:internal/modules/cjs/helpers:102:18)\n    at Object.<anonymous> (/Users/humphd/Seneca/CCP555/fragments/src/app.js:14:23)\n    at Module._compile (node:internal/modules/cjs/loader:1101:14)\n    at Object.Module._extensions..js (node:internal/modules/cjs/loader:1153:10)"},"origin":"uncaughtException","msg":"uncaughtException"}
+/Users/humphd/Seneca/CCP555/fragments/src/index.js:11
+  throw err;
+  ^
+
+Error: missing env vars: no authorization configuration found
+    at Object.<anonymous> (/Users/humphd/Seneca/CCP555/fragments/src/auth/index.js:11:9)
+    at Module._compile (node:internal/modules/cjs/loader:1101:14)
+    at Object.Module._extensions..js (node:internal/modules/cjs/loader:1153:10)
+    at Module.load (node:internal/modules/cjs/loader:981:32)
+    at Function.Module._load (node:internal/modules/cjs/loader:822:12)
+    at Module.require (node:internal/modules/cjs/loader:1005:19)
+    at require (node:internal/modules/cjs/helpers:102:18)
+    at Object.<anonymous> (/Users/humphd/Seneca/CCP555/fragments/src/app.js:14:23)
+    at Module._compile (node:internal/modules/cjs/loader:1101:14)
+    at Object.Module._extensions..js (node:internal/modules/cjs/loader:1153:10)
+```
+4. Fix your `.env` file to uncomment your `AWS_COGNITO_*` variables, and ensure your server starts.
+5. Run the tests
+```bash
+$ npm test
+
+> fragments@0.0.1 test
+> jest -c jest.config.js --runInBand --
+
+Using LOG_LEVEL=silent. Use 'debug' in env.jest for more detail
+ PASS  tests/unit/response.test.js
+  API Responses
+    ✓ createErrorResponse() (1 ms)
+    ✓ createSuccessResponse()
+    ✓ createSuccessResponse(data)
+
+ FAIL  tests/unit/health.test.js
+  ● Test suite failed to run
+
+    missing expected env vars: AWS_COGNITO_POOL_ID, AWS_COGNITO_CLIENT_ID
+
+      11 | // We expect AWS_COGNITO_POOL_ID and AWS_COGNITO_CLIENT_ID to be defined.
+      12 | if (!(process.env.AWS_COGNITO_POOL_ID && process.env.AWS_COGNITO_CLIENT_ID)) {
+    > 13 |   throw new Error('missing expected env vars: AWS_COGNITO_POOL_ID, AWS_COGNITO_CLIENT_ID');
+         |         ^
+      14 | }
+      15 |
+      16 | // Create a Cognito JWT Verifier, which will confirm that any JWT we
+
+      at Object.<anonymous> (src/auth.js:13:9)
+      at Object.<anonymous> (src/app.js:14:23)
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        0.425 s, estimated 1 s
+Ran all test suites.
+```
+Proactively handling missing data makes debugging easier and ensures maintainability. Crashing with clear error messages for missing environment variables like `AWS_COGNITO_POOL_ID` helps prevent unpredictable behavior. Cloud-ready software needs to handle both ideal and failure scenarios, and informative crashes lead to quicker fixes.
+### Simplifying Authentication in Testing and Development
+While we've improved error clarity, we still can't run tests without authenticating against Cognito, and automating OAuth2 authentication is complex. Instead, we'll simplify by adding a second `Passport.js` strategy for testing: [HTTP Basic Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication). This method allows us to [authenticate](https://en.wikipedia.org/wiki/Basic_access_authentication#Client_side) users in tests without relying on Cognito’s complex flow.
+
+We'll create test user accounts using an [`.htpasswd`](https://httpd.apache.org/docs/2.4/programs/htpasswd.html) file, which will only be used during testing. This lets us hard-code user credentials and bypass Cognito, focusing on the functionality of our code. Tools like the `htpasswd` node module, runnable via [`npx`](https://nodejs.dev/learn/the-npx-nodejs-package-runner), can help create the file easily across platforms.
+
+1. Add two users to a new file, `tests/.htpasswd`
+```bash
+npx htpasswd -cbB tests/.htpasswd user1@email.com password1
+npx htpasswd -bB tests/.htpasswd user2@email.com password2
+```
+2. You will have a `tests/.htpasswd` file, and it will look something like this
+```ini
+user1@email.com:$2y$05$GDRI8grIF2scr39MIUo6leaOud5xnMSC0BXuZDc2.Bdlccug./tU6
+user2@email.com:$2y$05$ycsS/OI8GrRMmBPnEWu1huQDIROvndt2m49b2JxzPoeBgNEyujeFq
+```
+> NOTE: the passwords you entered above encrypted using [bcrypt](https://en.wikipedia.org/wiki/Bcrypt)
+3. Install two new node modules for working with Basic Authentication in Passport.js, `http-auth` and `http-auth-passport`:
+```bash
+npm install --save http-auth http-auth-passport
+```
+4. [Refactor](https://en.wikipedia.org/wiki/Code_refactoring) `src/auth.js` file so that it works for both Cognito JWTs as well as HTTP Basic Authentication.
+```bash
+src/
+├─ auth.js
+├─ auth/
+│  ├─ cognito.js
+│  ├─ basic-auth.js
+│  ├─ index.js
+...
+```
+> NOTE: We separate our Cognito and Basic Authentication strategies into two different files: `cognito.js` and `basic-auth.js`, `src/auth/index.js` will be used to figure out which of the two strategies to use at runtime, based on our environment variables.
+5. Copy and paste all of the code in `src/auth.js` into `src/auth/cognito.js`
+```js
+// src/auth/cognito.js
+
+// Configure a JWT token strategy for Passport based on
+// Identity Token provided by Cognito. The token will be
+// parsed from the Authorization header (i.e., Bearer Token).
+
+const passport = require('passport');
+const BearerStrategy = require('passport-http-bearer').Strategy;
+const { CognitoJwtVerifier } = require('aws-jwt-verify');
+
+const logger = require('../logger');
+
+// We expect AWS_COGNITO_POOL_ID and AWS_COGNITO_CLIENT_ID to be defined.
+if (!(process.env.AWS_COGNITO_POOL_ID && process.env.AWS_COGNITO_CLIENT_ID)) {
+  throw new Error('missing expected env vars: AWS_COGNITO_POOL_ID, AWS_COGNITO_CLIENT_ID');
+}
+
+// Create a Cognito JWT Verifier, which will confirm that any JWT we
+// get from a user is valid and something we can trust. See:
+// https://github.com/awslabs/aws-jwt-verify#cognitojwtverifier-verify-parameters
+const jwtVerifier = CognitoJwtVerifier.create({
+  userPoolId: process.env.AWS_COGNITO_POOL_ID,
+  clientId: process.env.AWS_COGNITO_CLIENT_ID,
+  // We expect an Identity Token (vs. Access Token)
+  tokenUse: 'id',
+});
+
+// At startup, download and cache the public keys (JWKS) we need in order to
+// verify our Cognito JWTs, see https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-sets
+// You can try this yourself using:
+// curl https://cognito-idp.us-east-1.amazonaws.com/<user-pool-id>/.well-known/jwks.json
+jwtVerifier
+  .hydrate()
+  .then(() => {
+    logger.info('Cognito JWKS cached');
+  })
+  .catch((err) => {
+    logger.error({ err }, 'Unable to cache Cognito JWKS');
+  });
+
+module.exports.strategy = () =>
+  // For our Passport authentication strategy, we'll look for the Bearer Token
+  // in the Authorization header, then verify that with our Cognito JWT Verifier.
+  new BearerStrategy(async (token, done) => {
+    try {
+      // Verify this JWT
+      const user = await jwtVerifier.verify(token);
+      logger.debug({ user }, 'verified user token');
+
+      // Create a user, but only bother with their email
+      done(null, user.email);
+    } catch (err) {
+      logger.error({ err, token }, 'could not verify token');
+      done(null, false);
+    }
+  });
+
+module.exports.authenticate = () => passport.authenticate('bearer', { session: false });
+```
+6. Write `src/auth/index.js`
+```bash
+// src/auth/index.js
+
+// Prefer Amazon Cognito
+if (process.env.AWS_COGNITO_POOL_ID && process.env.AWS_COGNITO_CLIENT_ID) {
+  module.exports = require('./cognito');
+}
+// Also allow for an .htpasswd file to be used, but not in production
+else if (process.env.HTPASSWD_FILE && process.NODE_ENV !== 'production') {
+  module.exports = require('./basic-auth');
+}
+// In all other cases, we need to stop now and fix our config
+else {
+  throw new Error('missing env vars: no authorization configuration found');
+}
+```
+7. Delete `src/auth.js`
+```bash
+$ git rm src/auth.js -f
+rm 'src/auth.js'
+```
+8. Run test
+```bash
+$ npm test
+
+> fragments@0.0.1 test
+> jest -c jest.config.js --runInBand --
+
+Using LOG_LEVEL=silent. Use 'debug' in env.jest for more detail
+ PASS  tests/unit/response.test.js
+  API Responses
+    ✓ createErrorResponse() (1 ms)
+    ✓ createSuccessResponse()
+    ✓ createSuccessResponse(data)
+
+ FAIL  tests/unit/health.test.js
+  ● Test suite failed to run
+
+    missing env vars: no authorization configuration found
+
+       9 | // In all other cases, we need to stop now and fix our config
+      10 | else {
+    > 11 |   throw new Error('missing env vars: no authorization configuration found');
+         |         ^
+      12 | }
+      13 |
+
+      at Object.<anonymous> (src/auth/index.js:11:9)
+      at Object.<anonymous> (src/app.js:14:23)
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        0.405 s, estimated 1 s
+Ran all test suites.
+```
+9. Run server and ensure the existing Cognito strategy is still working
+```bash
+$ npm run dev
+
+> fragments@0.0.1 dev
+> LOG_LEVEL=debug nodemon ./src/index.js --watch src
+
+[nodemon] 2.0.15
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): src/**/*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `node ./src/index.js`
+[1642717658142] INFO (16503 on localdomain): Server started
+    port: 8080
+[1642717658295] INFO (16503 on localdomain): Cognito JWKS cached
+```
+### Configure Unit Tests to Use Basic Auth
+1. Add the `HTPASSWD_FILE` variable to your `env.jest` environment file
+```jest
+# env.jest
+
+# HTTP Port (defaults to 8080)
+PORT=8080
+
+# Disable logs in tests. If you need to see more detail, change this to `debug`
+LOG_LEVEL=silent
+
+# .htpasswd file to use in testing
+HTPASSWD_FILE=tests/.htpasswd
+```
+2. Run test
+```bash
+$ npm test
+
+> fragments@0.0.1 test
+> jest -c jest.config.js --runInBand --
+
+Using LOG_LEVEL=silent. Use 'debug' in env.jest for more detail
+ PASS  tests/unit/response.test.js
+  API Responses
+    ✓ createErrorResponse() (1 ms)
+    ✓ createSuccessResponse()
+    ✓ createSuccessResponse(data)
+
+ PASS  tests/unit/health.test.js
+  / health check
+    ✓ should return HTTP 200 response (12 ms)
+    ✓ should return Cache-Control: no-cache header (2 ms)
+    ✓ should return status: ok in response (1 ms)
+    ✓ should return correct version, githubUrl, and author in response (1 ms)
+
+Test Suites: 2 passed, 2 total
+Tests:       7 passed, 7 total
+Snapshots:   0 total
+Time:        0.369 s, estimated 1 s
+Ran all test suites.
+```
+### Use Basic Auth in Unit Tests
+1. Update `src/routes/index.js`, We should be able to write two new test cases in order to test this code: 1) an **authenticated** request; 2) an **unauthenticated** request. In both cases, the HTTP responses should match what we expect.
+
+
+```js
+// src/routes/index.js
+
+/**
+ * Expose all of our API routes on /v1/* to include an API version.
+ * Protect them all so you have to be authenticated in order to access.
+ */
+router.use(`/v1`, authenticate(), require('./api'));
+
+////////////////////////////////////////////////////////////////////
+
+// src/routes/api/get.js
+
+/**
+ * Get a list of fragments for the current user
+ */
+module.exports = (req, res) => {
+  // TODO: this is just a placeholder to get something working
+  res.status(200).json({
+    status: 'ok',
+    fragments: [],
+  });
+};
+```
+2. Add a new unit test file, `tests/unit/get.test.js`
+```js
+// tests/unit/get.test.js
+
+const request = require('supertest');
+
+const app = require('../../src/app');
+
+describe('GET /v1/fragments', () => {
+  // If the request is missing the Authorization header, it should be forbidden
+  test('unauthenticated requests are denied', () => request(app).get('/v1/fragments').expect(401));
+
+  // If the wrong username/password pair are used (no such user), it should be forbidden
+  test('incorrect credentials are denied', () =>
+    request(app).get('/v1/fragments').auth('invalid@email.com', 'incorrect_password').expect(401));
+
+  // Using a valid username/password pair should give a success result with a .fragments array
+  test('authenticated users get a fragments array', async () => {
+    const res = await request(app).get('/v1/fragments').auth('user1@email.com', 'password1');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.status).toBe('ok');
+    expect(Array.isArray(res.body.fragments)).toBe(true);
+  });
+
+  // TODO: we'll need to add tests to check the contents of the fragments array later
+});
+```
+3. Run test
+```bash
+$ npm test
+
+> fragments@0.0.1 test
+> jest -c jest.config.js --runInBand --
+
+Using LOG_LEVEL=silent. Use 'debug' in env.jest for more detail
+ PASS  tests/unit/health.test.js
+  / health check
+    ✓ should return HTTP 200 response (8 ms)
+    ✓ should return Cache-Control: no-cache header (2 ms)
+    ✓ should return status: ok in response (3 ms)
+    ✓ should return correct version, githubUrl, and author in response (1 ms)
+
+ PASS  tests/unit/get.test.js
+  GET /v1/fragments
+    ✓ unauthenticated requests are denied (8 ms)
+    ✓ incorrect credentials are denied (2 ms)
+    ✓ authenticated users get a fragments array (12 ms)
+
+ PASS  tests/unit/response.test.js
+  API Responses
+    ✓ createErrorResponse() (1 ms)
+    ✓ createSuccessResponse()
+    ✓ createSuccessResponse(data)
+
+Test Suites: 3 passed, 3 total
+Tests:       10 passed, 10 total
+Snapshots:   0 total
+Time:        0.472 s, estimated 1 s
+Ran all test suites.
+```
+4. Run a single test file by passing all
+```bash
+$ npm test get.test.js
+
+> fragments@0.0.1 test
+> jest -c jest.config.js --runInBand -- "get.test.js"
+
+Using LOG_LEVEL=silent. Use 'debug' in env.jest for more detail
+ PASS  tests/unit/get.test.js
+  GET /v1/fragments
+    ✓ unauthenticated requests are denied (11 ms)
+    ✓ incorrect credentials are denied (2 ms)
+    ✓ authenticated users get a fragments array (12 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        0.316 s, estimated 1 s
+Ran all test suites matching /get.test.js/i.
+```
+### Examining Test Coverage
+1. When we added Jest earlier, we created a number of npm scripts to run it. One of those was the coverage script
+```bash
+$ npm run coverage
+
+> fragments@0.0.1 coverage
+> jest -c jest.config.js --runInBand --coverage
+
+Using LOG_LEVEL=silent. Use 'debug' in env.jest for more detail
+ PASS  tests/unit/get.test.js
+  GET /v1/fragments
+    ✓ unauthenticated requests are denied (10 ms)
+    ✓ incorrect credentials are denied (2 ms)
+    ✓ authenticated users get a fragments array (12 ms)
+
+ PASS  tests/unit/health.test.js
+  / health check
+    ✓ should return HTTP 200 response (5 ms)
+    ✓ should return Cache-Control: no-cache header (2 ms)
+    ✓ should return status: ok in response (2 ms)
+    ✓ should return correct version, githubUrl, and author in response (2 ms)
+
+ PASS  tests/unit/response.test.js
+  API Responses
+    ✓ createErrorResponse() (1 ms)
+    ✓ createSuccessResponse()
+    ✓ createSuccessResponse(data)
+
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   83.87 |       40 |      75 |    83.6 |
+ src               |   78.78 |       20 |      50 |   78.78 |
+  app.js           |      76 |        0 |       0 |      76 | 41,55-63
+  logger.js        |      75 |       50 |     100 |      75 | 7
+  response.js      |     100 |      100 |     100 |     100 |
+ src/auth |   78.57 |       60 |     100 |   76.92 |
+  basic-auth.js    |   88.88 |       50 |     100 |    87.5 | 10
+  index.js         |      60 |     62.5 |     100 |      60 | 3,11
+ src/routes        |     100 |      100 |     100 |     100 |
+  index.js         |     100 |      100 |     100 |     100 |
+ src/routes/api    |     100 |      100 |     100 |     100 |
+  get.js           |     100 |      100 |     100 |     100 |
+  index.js         |     100 |      100 |     100 |     100 |
+-------------------|---------|----------|---------|---------|-------------------
+Test Suites: 3 passed, 3 total
+Tests:       10 passed, 10 total
+Snapshots:   0 total
+Time:        0.62 s, estimated 1 s
+Ran all test suites.
+```
+Running our tests also collected coverage data, showing which files and lines were executed. The report highlights the percentage of statements, branches, functions, and lines covered by tests, along with specific lines that lack coverage (e.g., lines 3 and 11 in `src/auth/index.js`). A detailed web report can be viewed by opening `coverage/lcov-report/index.html`.
+
+Coverage data helps identify untested parts of the project, such as missing branches in conditional statements. However, 100% coverage isn't always practical, as some code (like our Cognito authentication) may not be testable. Aim for 80-100% coverage, focusing on meaningful test coverage rather than perfection.
+### Improving Test Coverage by Adding More Tests
+1. Modify `tests/unit/app.test.js`
+```js
+test('should return HTTP 404 response', async () => {
+  const res = await request(app).get('/404');
+  expect(res.statusCode).toBe(404);
+});
+```
+2. Run coverage, you should see `app.js` line **41** has gone
+### Running Unit Tests in CI
+1. Add another Job to `.github/workflows/ci.yml`. It's going to be very similar to our ESLint Job, except it will run our unit tests vs. linter as the final step:
+```yml
+# modifications to .github/workflows/ci.yml
+
+jobs:
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install node dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install node dependencies and run Tests
+        # There are two ways we could do this:
+        #
+        # 1. Call `npm ci` followed by `npm test` like so (NOTE: the use of | and -):
+        # run: |
+        # - npm install
+        # - npm test
+        #
+        # 2. Use `install-ci-test` to do it in a single command, see https://docs.npmjs.com/cli/v8/commands/npm-install-ci-test
+        # run: npm install-ci-test
+        run: npm install-ci-test
+```
+2. Save and commit
+```sh
+git add package.json package-lock.json .prettierignore .prettierrc .vscode/settings.json
+git commit -m "Write_what_is_change"
+```
+### Refactor to Use the `response.js` Functions
+1. Rewrite all of your HTTP responses to use the `createSuccessResponse()` and `createErrorResponse() `functions in `src/response.js`
+  - health check route in src/routes/index.js
+  - default error handler in src/app.js
+  - code for the GET /v1/fragments route in src/routes/api/get.js
+2. Run test
+3. Save and commit
+```sh
+git add package.json package-lock.json .prettierignore .prettierrc .vscode/settings.json
+git commit -m "Write_what_is_change"
+```
+4. push to Git
 
 ## Student Information
 - Student Name: Shanyun, Wang
 - Student ID: 133159228
 
 ## Version History
-- 2024-09-16 v01.2
-  * v01.2 add unit test
+- 2024-09-23 v01.2
+  * v01.2 add unit test and ci to github
 - 2024-09-16 v01.1
   * v01.1 Add fragments-ui to handle web app, which will allow users to authenticate, and only then can they communicate securely with our back-end web service.
 - 2024-09-09 v01
@@ -1479,3 +2222,5 @@ export default [
   * [Unit test](https://en.wikipedia.org/wiki/Unit_testing)
   * [Jest](https://jestjs.io/)
   * [Let It Crash: Best Practices for Handling Node.js Errors on Shutdown](https://blog.heroku.com/best-practices-nodejs-errors)
+  * [Apache `htpasswd` utility](https://httpd.apache.org/docs/2.4/programs/htpasswd.html)
+  * [htpasswd node module](https://github.com/gevorg/htpasswd)
