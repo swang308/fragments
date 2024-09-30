@@ -1,3 +1,6 @@
+# Don't include file in .ssh/, which might have sensitive information
+.ssh/
+
 # Don't include .env, which might have sensitive information
 .env
 
