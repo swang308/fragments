@@ -10,6 +10,10 @@ const router = express.Router();
 
 // Define our first route, which will be: GET /v1/fragments
 router.get('/fragments', require('./get'));
-// Other routes (POST, DELETE, etc.) will go here later on...
+
+// Define POST /v1/fragments route (add this)
+router.post('/fragments', require('./post')); // Ensure this references your POST route handler
+
+// Other routes (, DELETE, etc.) will go here later on...
 
 module.exports = router;
