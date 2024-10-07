@@ -9,7 +9,7 @@ const authenticate = require('./auth');
 const logger = require('./logger');
 const pino = require('pino-http')({ logger });
 const { createErrorResponse } = require('./response');
-const { author, version } = require('../package.json');
+// const { author, version } = require('../package.json');
 
 // Create an express app instance we can use to attach middleware and HTTP routes
 const app = express();
