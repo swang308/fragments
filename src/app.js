@@ -4,8 +4,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
-// const passport = require('passport');
-// const authenticate = require('./auth');
+const passport = require('passport');
+const authenticate = require('./auth');
 const logger = require('./logger');
 const pino = require('pino-http')({ logger });
 const { createErrorResponse } = require('./response');
@@ -29,8 +29,8 @@ app.use(cors());
 app.use(compression());
 app.use(express.json()); // Use for JSON payloads
 // Set up our passport authentication middleware
-// passport.use(authenticate.strategy());
-// app.use(passport.initialize());
+passport.use(authenticate.strategy());
+app.use(passport.initialize());
 app.use('/fragments', postRoute);
 
 // Health check endpoint
