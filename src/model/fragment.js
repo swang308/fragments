@@ -1,3 +1,5 @@
+// src/model/fragment.js
+
 // Use crypto.randomUUID() to create unique IDs, see:
 // https://nodejs.org/api/crypto.html#cryptorandomuuidoptions
 const { randomUUID } = require('crypto');
@@ -125,7 +127,7 @@ class Fragment {
    */
   static isSupportedType(value) {
     const { type } = contentType.parse(value);
-    const validTypes = ['text/plain'];
+    const validTypes = ['text/plain', 'application/json']; // Expand as necessary
     return validTypes.includes(type);
   }
 }
