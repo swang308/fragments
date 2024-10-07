@@ -1,11 +1,10 @@
 const request = require('supertest');
 const app = require('../../src/app'); // Your Express app
-const Fragment = require('../../src/model/fragment');
+const { Fragment } = require('../../src/model/fragment'); // Import the Fragment class
 const hash = require('../../src/hash'); // For hashing the email
 
-// Mock the hash and Fragment modules
+// Mock the hash module
 jest.mock('../../src/hash');
-jest.mock('../../src/model/fragment');
 
 describe('POST /fragments', () => {
   const fragmentData = Buffer.from('Hello World');
@@ -18,7 +17,7 @@ describe('POST /fragments', () => {
     // Mock the hash function to return a hashed version of the email
     hash.mockReturnValue(user.emailHash);
 
-    // Mock Fragment methods
+    // Mock the Fragment class methods
     Fragment.isSupportedType = jest.fn();
   });
 
@@ -32,11 +31,15 @@ describe('POST /fragments', () => {
       type: fragmentType,
       ownerId: user.emailHash,
       size: fragmentData.length,
-      save: jest.fn().mockResolvedValue(this), // Ensure save resolves to the fragment object itself
+      save: jest.fn().mockResolvedValue(undefined), // Mock save to resolve successfully
     };
 
-    // Set the implementation of Fragment to return the mockFragment
-    Fragment.mockImplementation(() => mockFragment);
+    // Mock implementation of the Fragment constructor
+    jest.spyOn(Fragment.prototype, 'save').mockImplementation(mockFragment.save);
+    jest.spyOn(Fragment.prototype, 'getData').mockImplementation(() => fragmentData);
+
+    // const fragmentMockImplementation = jest.fn().mockImplementation(() => mockFragment);
+    jest.spyOn(Fragment, 'isSupportedType').mockReturnValue(true); // Ensure it returns true
 
     const res = await request(app)
       .post('/fragments')
@@ -71,11 +74,11 @@ describe('POST /fragments', () => {
     Fragment.isSupportedType.mockReturnValue(true);
 
     // Simulate a server error by making the save function reject
-    const mockFragment = {
-      save: jest.fn().mockRejectedValue(new Error('Server error')),
-    };
+    const mockFragment = new Fragment({ ownerId: user.emailHash, type: fragmentType });
+    jest.spyOn(mockFragment, 'save').mockRejectedValue(new Error('Server error'));
 
-    Fragment.mockImplementation(() => mockFragment);
+    // Mock the Fragment constructor to return the mockFragment
+    jest.spyOn(Fragment.prototype, 'save').mockImplementation(mockFragment.save);
 
     const res = await request(app)
       .post('/fragments')
