@@ -1,11 +1,12 @@
 const request = require('supertest');
-const app = require('../../src/app'); // Your Express app
-const { Fragment } = require('../../src/model/fragment'); // Import the Fragment class
-const hash = require('../../src/hash'); // For hashing the email
+const app = require('../../src/app');
+const { Fragment } = require('../../src/model/fragment');
+const hash = require('../../src/hash');
+const contentType = require('content-type');
 
-// Mock the hash and Fragment modules
-jest.mock('../../src/hash');
+// Mock the Fragment and hash modules
 jest.mock('../../src/model/fragment');
+jest.mock('../../src/hash');
 
 describe('POST /fragments', () => {
   const fragmentData = Buffer.from('Hello World');
@@ -14,39 +15,41 @@ describe('POST /fragments', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    hash.mockReturnValue(user.emailHash); // Mock hashing of the email
+  });
 
-    // Mock the hash function to return a hashed version of the email
-    hash.mockReturnValue(user.emailHash);
+  it('should return 401 for unauthenticated requests', async () => {
+    const res = await request(app)
+      .post('/fragments')
+      .set('Content-Type', fragmentType)
+      .send(fragmentData);
 
-    // Mock Fragment methods
-    Fragment.isSupportedType = jest.fn();
+    expect(res.status).toBe(401);
+    expect(res.body.message).toBe('Unauthorized');
   });
 
   it('should create a plain text fragment for authenticated users', async () => {
-    // Mock isSupportedType to return true
-    Fragment.isSupportedType.mockReturnValue(true);
-
+    Fragment.isSupportedType.mockReturnValue(true); // Mock isSupportedType to return true
     const mockFragment = {
       id: 'abc123',
       created: new Date().toISOString(),
       type: fragmentType,
       ownerId: user.emailHash,
       size: fragmentData.length,
-      save: jest.fn().mockResolvedValue(undefined), // Mock save to resolve successfully
+      setData: jest.fn().mockResolvedValue(undefined),
     };
 
-    // Mock implementation of the Fragment constructor
-    jest.spyOn(Fragment.prototype, 'save').mockImplementation(mockFragment.save);
-    jest.spyOn(Fragment.prototype, 'getData').mockImplementation(() => fragmentData);
+    // Mock the Fragment constructor and methods
+    jest.spyOn(Fragment.prototype, 'setData').mockImplementation(mockFragment.setData);
 
     const res = await request(app)
       .post('/fragments')
+      .set('Authorization', `Basic ${Buffer.from(`${user.email}:password`).toString('base64')}`)
       .set('Content-Type', fragmentType)
-      .send(fragmentData)
-      .auth(user.email, 'password'); // Mock authentication header
+      .send(fragmentData);
 
     expect(res.status).toBe(201);
-    expect(res.body).toHaveProperty('id');
+    expect(res.body).toHaveProperty('id', mockFragment.id);
     expect(res.body).toHaveProperty('created');
     expect(res.body.type).toBe(fragmentType);
     expect(res.body.ownerId).toBe(user.emailHash);
@@ -55,35 +58,44 @@ describe('POST /fragments', () => {
   });
 
   it('should return 400 for unsupported content types', async () => {
-    // Mock isSupportedType to return false
-    Fragment.isSupportedType.mockReturnValue(false);
+    Fragment.isSupportedType.mockReturnValue(false); // Mock isSupportedType to return false
 
     const res = await request(app)
       .post('/fragments')
+      .set('Authorization', `Basic ${Buffer.from(`${user.email}:password`).toString('base64')}`)
       .set('Content-Type', 'application/unsupported')
       .send(fragmentData);
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe('Invalid body data'); // Ensure this matches the actual message from your route
+    expect(res.body.message).toBe('Invalid content type');
   });
 
-  it('should return 500 on server errors', async () => {
-    // Mock isSupportedType to return true
-    Fragment.isSupportedType.mockReturnValue(true);
-
-    // Simulate a server error by making the save function reject
-    const mockFragment = new Fragment({ ownerId: user.emailHash, type: fragmentType });
-    jest.spyOn(mockFragment, 'save').mockRejectedValue(new Error('Server error'));
-
-    // Mock the Fragment constructor to return the mockFragment
-    jest.spyOn(Fragment.prototype, 'save').mockImplementation(mockFragment.save);
+  it('should return 400 for invalid body data', async () => {
+    Fragment.isSupportedType.mockReturnValue(true); // Valid content type
 
     const res = await request(app)
       .post('/fragments')
+      .set('Authorization', `Basic ${Buffer.from(`${user.email}:password`).toString('base64')}`)
+      .set('Content-Type', fragmentType)
+      .send({ key: 'value' }); // Invalid data (not Buffer)
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('Invalid body data');
+  });
+
+  it('should return 500 on server errors', async () => {
+    Fragment.isSupportedType.mockReturnValue(true); // Valid content type
+    const mockFragment = new Fragment({ ownerId: user.emailHash, type: fragmentType });
+
+    jest.spyOn(mockFragment, 'setData').mockRejectedValue(new Error('Server error'));
+
+    const res = await request(app)
+      .post('/fragments')
+      .set('Authorization', `Basic ${Buffer.from(`${user.email}:password`).toString('base64')}`)
       .set('Content-Type', fragmentType)
       .send(fragmentData);
 
     expect(res.status).toBe(500);
-    expect(res.body.message).toBe('Internal server error'); // Ensure this matches the actual message from your route
+    expect(res.body.message).toBe('Internal server error');
   });
 });
