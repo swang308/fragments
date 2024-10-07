@@ -1,0 +1,61 @@
+const express = require('express');
+const contentType = require('content-type');
+const logger = require('../../logger'); // Assuming logger is in src/logger.js
+const Fragment = require('../../model/fragment'); // Your Fragment class
+
+const router = express.Router();
+
+// Middleware to handle raw body data up to 5MB and support various content types
+const rawBody = () => express.raw({
+  inflate: true,
+  limit: '5mb',
+  type: (req) => {
+    try {
+      const { type } = contentType.parse(req);
+      return Fragment.isSupportedType(type); // Check if the type is supported by Fragment
+    } catch (err) {
+      logger.warn('Failed to parse content type:', err.message);
+      return false;
+    }
+  },
+});
+
+router.post('/fragments', rawBody(), async (req, res) => {
+  try {
+    if (!Buffer.isBuffer(req.body)) {
+      logger.warn('Request body is not a valid buffer');
+      return res.status(400).json({ message: 'Invalid body data' });
+    }
+
+    const { type } = contentType.parse(req);
+    const ownerId = req.user ? req.user.emailHash : 'anonymous'; // Use hashed email or anonymous
+
+    // Create a new fragment using the Fragment class
+    const fragment = new Fragment({
+      ownerId,
+      type,
+      data: req.body,
+    });
+
+    await fragment.save();
+
+    const apiUrl = process.env.API_URL || `http://${req.headers.host}`;
+    const location = `${apiUrl}/fragments/${fragment.id}`;
+
+    logger.info(`Fragment created with ID: ${fragment.id}`);
+
+    // Return the response with the Location header
+    res.status(201).location(location).json({
+      id: fragment.id,
+      created: fragment.created,
+      type: fragment.type,
+      ownerId: fragment.ownerId,
+      size: fragment.size,
+    });
+  } catch (err) {
+    logger.error('Error creating fragment:', err.message);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+module.exports = router;
