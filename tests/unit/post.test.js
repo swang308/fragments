@@ -1,10 +1,8 @@
-//tests/unit/post.test.js
 const request = require('supertest');
 const app = require('../../src/app'); // Your Express app
 const Fragment = require('../../src/model/fragment');
 const hash = require('../../src/hash'); // For hashing the email
 
-jest.mock('../../src/model/fragment');
 jest.mock('../../src/hash');
 
 describe('POST /fragments', () => {
@@ -21,11 +19,11 @@ describe('POST /fragments', () => {
   });
 
   it('should create a plain text fragment for authenticated users', async () => {
-    // Mock Fragment.isSupportedType to return true
-    Fragment.isSupportedType.mockReturnValue(true);
+    // Spy on Fragment.isSupportedType static method
+    jest.spyOn(Fragment, 'isSupportedType').mockReturnValue(true);
 
     // Mock the create function to simulate fragment creation
-    Fragment.create.mockResolvedValue({
+    jest.spyOn(Fragment, 'create').mockResolvedValue({
       id: 'abc123',
       created: new Date().toISOString(),
       type: fragmentType,
@@ -50,8 +48,8 @@ describe('POST /fragments', () => {
   });
 
   it('should return 400 for unsupported content types', async () => {
-    // Mock Fragment.isSupportedType to return false (unsupported type)
-    Fragment.isSupportedType.mockReturnValue(false);
+    // Spy on Fragment.isSupportedType to return false
+    jest.spyOn(Fragment, 'isSupportedType').mockReturnValue(false);
 
     const res = await request(app)
       .post('/fragments')
@@ -64,11 +62,11 @@ describe('POST /fragments', () => {
   });
 
   it('should return 500 on server errors', async () => {
-    // Mock Fragment.isSupportedType to return true (valid type)
-    Fragment.isSupportedType.mockReturnValue(true);
+    // Spy on Fragment.isSupportedType to return true (valid type)
+    jest.spyOn(Fragment, 'isSupportedType').mockReturnValue(true);
 
     // Simulate a server error by throwing an error in Fragment.create
-    Fragment.create.mockImplementation(() => {
+    jest.spyOn(Fragment, 'create').mockImplementation(() => {
       throw new Error('Server error');
     });
 
