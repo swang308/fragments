@@ -14,6 +14,15 @@ router.get('/fragments', require('./get'));
 // Define POST /v1/fragments route (add this)
 router.post('/fragments', require('./post'));
 
+// Define PUT /v1/fragments route (update this)
+router.put('/fragments', require('./put'));
+
+// Define DELETE /v1/fragments route (delete this)
+router.delete('/fragments', require('./delete'));
+
+// Define GET /v1/fragments/:id route
+router.get('/fragments/:id', require('./get:id'));
+
 // Other routes (, DELETE, etc.) will go here later on...
 
 module.exports = router;

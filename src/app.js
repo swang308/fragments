@@ -6,36 +6,35 @@ const helmet = require('helmet');
 const compression = require('compression');
 const passport = require('passport');
 const authenticate = require('./auth');
-
-// author and version from our package.json file
-// TODO: make sure you have updated your name in the `author` section
-// const { author, version } = require('../package.json');
-
 const logger = require('./logger');
-const pino = require('pino-http')({
-  // Use our default logger instance, which is already configured
-  logger,
-});
+const pino = require('pino-http')({ logger });
+const { createErrorResponse } = require('./response');
+const { author, version } = require('../package.json');
+
 // Create an express app instance we can use to attach middleware and HTTP routes
 const app = express();
 
-const { createErrorResponse } = require('./response');
+// Initialize environment variables
+require('dotenv').config();
 
 // Use pino logging middleware
 app.use(pino);
 
 // Use helmetjs security middleware
 app.use(helmet());
-
 // Use CORS middleware so we can make requests across origins
 app.use(cors());
-
 // Use gzip/deflate compression middleware
 app.use(compression());
-
+app.use(express.json()); // Use for JSON payloads
 // Set up our passport authentication middleware
 passport.use(authenticate.strategy());
 app.use(passport.initialize());
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 // Define a simple health check route. If the server is running
 app.use('/', require('./routes'));
@@ -65,16 +64,9 @@ app.use((err, req, res, next) => {
   }
 
   res.status(status).json(
-    // status: 'error',
-    // error: {
-    //   message,
-    //   code: status,
-    // },
     createErrorResponse(status, message)
   );
 });
-
-
 
 // Export our `app` so we can access it in server.js
 module.exports = app;
