@@ -2,9 +2,7 @@ const request = require('supertest');
 const app = require('../../src/app');
 const { Fragment } = require('../../src/model/fragment');
 const hash = require('../../src/hash');
-const contentType = require('content-type');
 
-// Mock the Fragment and hash modules
 jest.mock('../../src/model/fragment');
 jest.mock('../../src/hash');
 
@@ -39,7 +37,6 @@ describe('POST /fragments', () => {
       setData: jest.fn().mockResolvedValue(undefined),
     };
 
-    // Mock the Fragment constructor and methods
     jest.spyOn(Fragment.prototype, 'setData').mockImplementation(mockFragment.setData);
 
     const res = await request(app)
@@ -58,7 +55,7 @@ describe('POST /fragments', () => {
   });
 
   it('should return 400 for unsupported content types', async () => {
-    Fragment.isSupportedType.mockReturnValue(false); // Mock isSupportedType to return false
+    Fragment.isSupportedType.mockReturnValue(false);
 
     const res = await request(app)
       .post('/fragments')
@@ -71,22 +68,22 @@ describe('POST /fragments', () => {
   });
 
   it('should return 400 for invalid body data', async () => {
-    Fragment.isSupportedType.mockReturnValue(true); // Valid content type
+    Fragment.isSupportedType.mockReturnValue(true);
 
     const res = await request(app)
       .post('/fragments')
       .set('Authorization', `Basic ${Buffer.from(`${user.email}:password`).toString('base64')}`)
       .set('Content-Type', fragmentType)
-      .send({ key: 'value' }); // Invalid data (not Buffer)
+      .send('Invalid data'); // Send invalid (non-Buffer) data
 
     expect(res.status).toBe(400);
     expect(res.body.message).toBe('Invalid body data');
   });
 
   it('should return 500 on server errors', async () => {
-    Fragment.isSupportedType.mockReturnValue(true); // Valid content type
-    const mockFragment = new Fragment({ ownerId: user.emailHash, type: fragmentType });
+    Fragment.isSupportedType.mockReturnValue(true);
 
+    const mockFragment = new Fragment({ ownerId: user.emailHash, type: fragmentType });
     jest.spyOn(mockFragment, 'setData').mockRejectedValue(new Error('Server error'));
 
     const res = await request(app)

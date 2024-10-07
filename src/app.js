@@ -9,6 +9,7 @@ const authenticate = require('./auth');
 const logger = require('./logger');
 const pino = require('pino-http')({ logger });
 const { createErrorResponse } = require('./response');
+const postRoute = require('./routes/api/post');
 // const { author, version } = require('../package.json');
 
 // Create an express app instance we can use to attach middleware and HTTP routes
@@ -30,6 +31,7 @@ app.use(express.json()); // Use for JSON payloads
 // Set up our passport authentication middleware
 passport.use(authenticate.strategy());
 app.use(passport.initialize());
+app.use('/fragments', postRoute);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
