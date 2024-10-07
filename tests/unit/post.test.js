@@ -3,8 +3,9 @@ const app = require('../../src/app'); // Your Express app
 const Fragment = require('../../src/model/fragment');
 const hash = require('../../src/hash'); // For hashing the email
 
+// Mock the hash and Fragment modules
 jest.mock('../../src/hash');
-jest.mock('../../src/model/fragment'); // Mock the Fragment class
+jest.mock('../../src/model/fragment');
 
 describe('POST /fragments', () => {
   const fragmentData = Buffer.from('Hello World');
@@ -14,15 +15,16 @@ describe('POST /fragments', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock hash function to return a hashed version of the email
+    // Mock the hash function to return a hashed version of the email
     hash.mockReturnValue(user.emailHash);
 
-    // Reset the implementation of Fragment methods
-    Fragment.isSupportedType.mockReset();
-    Fragment.mockClear();
+    // Mock Fragment methods
+    Fragment.isSupportedType = jest.fn();
+    Fragment.mockClear(); // Clear any previous implementations
   });
 
   it('should create a plain text fragment for authenticated users', async () => {
+    // Mock isSupportedType to return true
     Fragment.isSupportedType.mockReturnValue(true);
 
     const mockFragment = {
@@ -53,6 +55,7 @@ describe('POST /fragments', () => {
   });
 
   it('should return 400 for unsupported content types', async () => {
+    // Mock isSupportedType to return false
     Fragment.isSupportedType.mockReturnValue(false);
 
     const res = await request(app)
@@ -65,6 +68,7 @@ describe('POST /fragments', () => {
   });
 
   it('should return 500 on server errors', async () => {
+    // Mock isSupportedType to return true
     Fragment.isSupportedType.mockReturnValue(true);
 
     // Simulate a server error by making the save function reject
