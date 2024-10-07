@@ -16,14 +16,17 @@ describe('POST /fragments', () => {
 
     // Mock hash function to return a hashed version of the email
     hash.mockReturnValue(user.emailHash);
+
+    // Mock isSupportedType directly on Fragment
+    Fragment.isSupportedType = jest.fn();
   });
 
   it('should create a plain text fragment for authenticated users', async () => {
-    // Spy on Fragment.isSupportedType static method
-    jest.spyOn(Fragment, 'isSupportedType').mockReturnValue(true);
+    // Mock Fragment.isSupportedType to return true
+    Fragment.isSupportedType.mockReturnValue(true);
 
     // Mock the create function to simulate fragment creation
-    jest.spyOn(Fragment, 'create').mockResolvedValue({
+    Fragment.create = jest.fn().mockResolvedValue({
       id: 'abc123',
       created: new Date().toISOString(),
       type: fragmentType,
@@ -48,8 +51,8 @@ describe('POST /fragments', () => {
   });
 
   it('should return 400 for unsupported content types', async () => {
-    // Spy on Fragment.isSupportedType to return false
-    jest.spyOn(Fragment, 'isSupportedType').mockReturnValue(false);
+    // Mock Fragment.isSupportedType to return false
+    Fragment.isSupportedType.mockReturnValue(false);
 
     const res = await request(app)
       .post('/fragments')
@@ -62,11 +65,11 @@ describe('POST /fragments', () => {
   });
 
   it('should return 500 on server errors', async () => {
-    // Spy on Fragment.isSupportedType to return true (valid type)
-    jest.spyOn(Fragment, 'isSupportedType').mockReturnValue(true);
+    // Mock Fragment.isSupportedType to return true (valid type)
+    Fragment.isSupportedType.mockReturnValue(true);
 
     // Simulate a server error by throwing an error in Fragment.create
-    jest.spyOn(Fragment, 'create').mockImplementation(() => {
+    Fragment.create = jest.fn().mockImplementation(() => {
       throw new Error('Server error');
     });
 
