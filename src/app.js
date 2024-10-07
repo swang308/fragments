@@ -30,7 +30,6 @@ app.use(express.json()); // Use for JSON payloads
 // Set up our passport authentication middleware
 passport.use(authenticate.strategy());
 app.use(passport.initialize());
-app.use('/fragments', postRoute);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
