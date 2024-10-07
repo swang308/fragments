@@ -1,5 +1,3 @@
-// tests/unit/post.test.js
-
 const request = require('supertest');
 const app = require('../../src/app'); // Your Express app
 const Fragment = require('../../src/model/fragment');
@@ -27,14 +25,18 @@ describe('POST /fragments', () => {
     // Mock Fragment.isSupportedType to return true
     Fragment.isSupportedType.mockReturnValue(true);
 
-    // Mock the create function to simulate fragment creation
-    Fragment.create = jest.fn().mockResolvedValue({
+    // Mock the save function to simulate fragment creation
+    const mockFragment = {
       id: 'abc123',
       created: new Date().toISOString(),
       type: fragmentType,
       ownerId: user.emailHash,
       size: fragmentData.length,
-    });
+      save: jest.fn().mockResolvedValue(this), // Ensure save resolves to the fragment object itself
+    };
+
+    // Mock Fragment constructor to return the mockFragment
+    Fragment.mockImplementation(() => mockFragment);
 
     const res = await request(app)
       .post('/fragments')
@@ -63,17 +65,18 @@ describe('POST /fragments', () => {
 
     // Check that the response is a 400 for unsupported content types
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe('Invalid content type or body'); // Ensure this matches the actual message from your route
+    expect(res.body.message).toBe('Invalid body data'); // Ensure this matches the actual message from your route
   });
 
   it('should return 500 on server errors', async () => {
     // Mock Fragment.isSupportedType to return true (valid type)
     Fragment.isSupportedType.mockReturnValue(true);
 
-    // Simulate a server error by throwing an error in Fragment.create
-    Fragment.create = jest.fn().mockImplementation(() => {
-      throw new Error('Server error');
-    });
+    // Simulate a server error by making the save function reject
+    const mockFragment = new Fragment();
+    mockFragment.save = jest.fn().mockRejectedValue(new Error('Server error'));
+
+    Fragment.mockImplementation(() => mockFragment);
 
     const res = await request(app)
       .post('/fragments')
@@ -82,6 +85,6 @@ describe('POST /fragments', () => {
 
     // Check that the response is a 500 for internal server error
     expect(res.status).toBe(500);
-    expect(res.body.message).toBe('Internal Server Error'); // Ensure this matches the actual message from your route
+    expect(res.body.message).toBe('Internal server error'); // Ensure this matches the actual message from your route
   });
 });
