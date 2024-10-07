@@ -5,7 +5,7 @@ const Fragment = require('../../model/fragment'); // Fragment class
 
 const router = express.Router();
 
-// Middleware to handle raw body data up to 5MB and support various content types
+// Support sending various Content-Types on the body up to 5M in size
 const rawBody = () =>
   express.raw({
     inflate: true,
@@ -22,7 +22,8 @@ const rawBody = () =>
     },
   });
 
-router.post('/', rawBody(), async (req, res) => {
+// Use a raw body parser for POST, which will give a `Buffer` Object or `{}` at `req.body`
+router.post('/fragments', rawBody(), async (req, res) => {
   try {
     // Simple Basic Auth check for the header (for testing purposes)
     const auth = req.headers.authorization;

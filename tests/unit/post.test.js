@@ -38,7 +38,8 @@ describe('POST /fragments', () => {
       setData: jest.fn().mockResolvedValue(undefined),
     };
 
-    jest.spyOn(Fragment.prototype, 'setData').mockImplementation(mockFragment.setData);
+    // Mock the Fragment constructor to return mockFragment
+    Fragment.mockImplementation(() => mockFragment);
 
     const res = await request(app)
       .post('/fragments')
