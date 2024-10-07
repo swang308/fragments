@@ -23,6 +23,4 @@ router.delete('/fragments', require('./delete'));
 // Define GET /v1/fragments/:id route
 router.get('/fragments/:id', require('./get:id'));
 
-// Other routes (, DELETE, etc.) will go here later on...
-
 module.exports = router;
