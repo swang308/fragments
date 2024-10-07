@@ -1,3 +1,5 @@
+//src/routes/api/post.js
+
 const express = require('express');
 const contentType = require('content-type');
 const logger = require('../../logger'); // Assuming logger is in src/logger.js
@@ -12,6 +14,7 @@ const rawBody = () => express.raw({
   type: (req) => {
     try {
       const { type } = contentType.parse(req);
+      logger.debug(`Parsed content type: ${type}`); // Debug log for content type
       return Fragment.isSupportedType(type); // Check if the type is supported by Fragment
     } catch (err) {
       logger.warn('Failed to parse content type:', err.message);
@@ -22,6 +25,8 @@ const rawBody = () => express.raw({
 
 router.post('/fragments', rawBody(), async (req, res) => {
   try {
+    logger.debug('Received POST request to /fragments'); // Debug log for incoming request
+
     if (!Buffer.isBuffer(req.body)) {
       logger.warn('Request body is not a valid buffer');
       return res.status(400).json({ message: 'Invalid body data' });
@@ -29,6 +34,8 @@ router.post('/fragments', rawBody(), async (req, res) => {
 
     const { type } = contentType.parse(req);
     const ownerId = req.user ? req.user.emailHash : 'anonymous'; // Use hashed email or anonymous
+
+    logger.debug(`Creating fragment for ownerId: ${ownerId} with content type: ${type}`);
 
     // Create a new fragment using the Fragment class
     const fragment = new Fragment({
