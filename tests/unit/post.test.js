@@ -20,7 +20,6 @@ describe('POST /fragments', () => {
 
     // Mock Fragment methods
     Fragment.isSupportedType = jest.fn();
-    Fragment.mockClear(); // Clear any previous implementations
   });
 
   it('should create a plain text fragment for authenticated users', async () => {
