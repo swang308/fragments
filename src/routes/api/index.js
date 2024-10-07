@@ -21,6 +21,6 @@ router.put('/fragments', require('./put'));
 router.delete('/fragments', require('./delete'));
 
 // Define GET /v1/fragments/:id route
-router.get('/fragments/:id', require('./get:id'));
+router.get('/fragments/:id', require('./get-id'));
 
 module.exports = router;
