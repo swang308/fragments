@@ -22,7 +22,7 @@ const rawBody = () =>
     },
   });
 
-router.post('/fragments', rawBody(), async (req, res) => {
+router.post('/', rawBody(), async (req, res) => {
   try {
     // Simple Basic Auth check for the header (for testing purposes)
     const auth = req.headers.authorization;
