@@ -15,6 +15,12 @@ This guide outlines setting up a Node.js-based REST API using Express for the CC
   * `http://localhost:8080`
 - Run ESLint
   * npm run lint
+- Run by `curl`
+  * `curl http://localhost:8080`
+  * jq and pipe the CURL, which will pretty-print the JSON
+    - `curl -s localhost:8080 | jq`
+  * Show Header
+    - `curl -i localhost:8080`
 
 ## Test
 - Run test in `watch` mode
@@ -47,6 +53,13 @@ fragements/
 │   │  ├─ basic-auth.js
 │   │  ├─ cognito.js
 │   │  ├─ index.js
+│   ├── model/
+│   │  ├── data/
+│   │  │  ├── memory/
+│   │  │  │  ├── index.js
+│   │  │  │  ├── memory-db.js
+│   │  │  ├── index.js
+│   │  ├── fragment.js
 │   ├── routes/
 │   │  ├─ api/
 │   │  │  ├─ get.js       # Get a list of current user
@@ -60,8 +73,11 @@ fragements/
 ├── tests/
 │   ├── units/
 │   │  ├── app.test.js       # unit-test file for app.js
+│   │  ├── fragment.test.js       # unit-test file for fragment.js
 │   │  ├── get.test.js       # unit-test file for get.js
 │   │  ├── health.test.js    # unit-test file for health.js
+│   │  ├── memory-db.test.js  # unit-test file for memory-db.js
+│   │  ├── memory.test.js  # unit-test file for data/index.js
 │   │  ├── response.test.js  # unit-test file for response.js
 │   │  ├── .htpasswd         # store test user account 
 ├── .env                  # Stroe credentails
@@ -204,7 +220,7 @@ git commit -m "Write_what_is_change"
 ```
 #### ESLint
 1. Open terminal, setup [ESLint](https://eslint.org/docs/user-guide/getting-started), run `npm audit fix` if you have vulnerabilities
-```
+```bash
 npm init @eslint/config@latest
 Need to install the following packages:
 @eslint/create-config@1.3.1
@@ -579,8 +595,9 @@ aws_session_token=AQoEXAMPLEH4aoAH0gNCAPy...rkuWJOgQs8IZZaIv2BXIa2R4Olgk
 ```
 > NOTE: the credentials for the default profile are defined
 3. Create a `.aws/` folder in your home directory and a file named `credentials`
-4. These credentials show be kept secret, DO NOT SHARE!
+4. These credentials show be kept secret, **DO NOT SHARE!**
 > NOTE: Your Account credentials (e.g., session token) will change each time you start and stop the lab environment.
+5. Add `.aws/` to .gitignore
 ### AWS Management Console
 1. In AWS Academy Learner Lab browser tab, click `AWS`. It open the **AWS Management Console** logged into your account
 2. Click **Services** button (on the top left).
@@ -603,12 +620,12 @@ The **User Pool** helps to manage user registration and sign-in. We can use it t
     * set sign-in options to **Username** for sign in.
     > NOTE: you can choose **Email** if you want.
   - Step 2: Configure secutiry requirement
-    * Password policy options: Cognito default
-    * Multi-factor authentication: No MFA
-    * Self-service account recovery: Enable self-service account recovery
-    * Delivery method for user account recovery messages: Email Only
+    * Password policy options: **Cognito default**
+    * Multi-factor authentication: **No MFA**
+    * Self-service account recovery: **Enable self-service account recovery**
+    * Delivery method for user account recovery messages: **Email Only**
   - Step 3: Configure sign-up experience
-    * Self-registration: Enable self-registration
+    * Self-registration: **Enable self-registration**
     * Clicked: Allow Cognito to automatically send messages to verify and confirm
     * Clicked: Send email message, verify email email address
     * Verifying attribute changes: Keep original attribute value active when an update is pending and to keep the Email address active during an update.
@@ -626,6 +643,7 @@ The **User Pool** helps to manage user registration and sign-in. We can use it t
     * Domain: Use a Cognito domain. **PREFIX** example: `https://swang308-fragments.auth.us-east-1.amazoncognito.com`, make a note to this URL
     *  App type: Public Client
     > NOTE: A browser-based client cannot contain a secret
+
     > NOTE: `fragments` web service is NOT going to handle user login or authentication. The `fragments-ui` web app will allow users to authenticate, and only then can they communicate securely with our back-end web service.
     * Choose App client name, example: `fragments-ui`
     * Client secret: Don't generate a client secret
@@ -655,7 +673,7 @@ The **User Pool** helps to manage user registration and sign-in. We can use it t
   - User pool properties
 
 ## Create the `fragments-ui` web app and repo
-We create a simple web app for testing our microservice. [Repo](https://github.com/swang308/fragments-ui)
+We create a simple web app for testing our microservice. **[Repo](https://github.com/swang308/fragments-ui)**
 ### Reminder
 - `Parcel` uses: http://localhost:1234
 ### Create Github repo

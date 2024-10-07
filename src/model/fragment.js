@@ -1,9 +1,6 @@
 // src/model/fragment.js
 
-// Use crypto.randomUUID() to create unique IDs, see:
-// https://nodejs.org/api/crypto.html#cryptorandomuuidoptions
 const { randomUUID } = require('crypto');
-// Use https://www.npmjs.com/package/content-type to create/parse Content-Type headers
 const contentType = require('content-type');
 
 // Functions for working with fragment metadata/data using our DB
@@ -17,18 +14,13 @@ const {
 } = require('./data');
 
 class Fragment {
-  constructor({ id, ownerId, created, updated, type, size = 0 }) {
-    if (!ownerId) throw new Error('ownerId is required');
-    if (!type) throw new Error('type is required');
-    if (!Fragment.isSupportedType(type)) throw new Error(`Unsupported type: ${type}`);
-    if (typeof size !== 'number' || size < 0) throw new Error('Size must be a non-negative number');
-
-    this.id = id || randomUUID();
+  constructor({ id = randomUUID(), ownerId, created = new Date(), updated = new Date(), type, size = 0 }) {
+    this.id = id;
     this.ownerId = ownerId;
+    this.created = created;
+    this.updated = updated;
     this.type = type;
     this.size = size;
-    this.created = created || new Date().toISOString();
-    this.updated = updated || this.created;
   }
 
   /**
@@ -38,8 +30,15 @@ class Fragment {
    * @returns Promise<Array<Fragment>>
    */
   static async byUser(ownerId, expand = false) {
-    const fragments = await listFragments(ownerId, expand);
-    return fragments.map((f) => (expand ? new Fragment(f) : f));
+    const fragmentsData = await listFragments(ownerId);
+    return Promise.all(fragmentsData.map(async (data) => {
+      const fragment = new Fragment(data);
+      if (expand) {
+        const fullFragment = await readFragment(ownerId, fragment.id);
+        return fullFragment;
+      }
+      return fragment;
+    }));
   }
 
   /**
@@ -49,9 +48,11 @@ class Fragment {
    * @returns Promise<Fragment>
    */
   static async byId(ownerId, id) {
-    const fragment = await readFragment(ownerId, id);
-    if (!fragment) throw new Error('Fragment not found');
-    return new Fragment(fragment);
+    const data = await readFragment(ownerId, id);
+    if (!data) {
+      throw new Error('Fragment not found');
+    }
+    return new Fragment(data);
   }
 
   /**
@@ -69,8 +70,15 @@ class Fragment {
    * @returns Promise<void>
    */
   async save() {
-    this.updated = new Date().toISOString();
-    await writeFragment(this);
+    const fragmentData = {
+      id: this.id,
+      ownerId: this.ownerId,
+      created: this.created,
+      updated: this.updated,
+      type: this.type,
+      size: this.size,
+    };
+    await writeFragment(fragmentData);
   }
 
   /**
@@ -87,11 +95,10 @@ class Fragment {
    * @returns Promise<void>
    */
   async setData(data) {
-    if (!Buffer.isBuffer(data)) throw new Error('Data must be a Buffer');
-    this.size = data.length;
-    this.updated = new Date().toISOString();
     await writeFragmentData(this.ownerId, this.id, data);
-    await this.save();
+    this.size = data.length; // Update size based on new data
+    this.updated = new Date(); // Update the modified date
+    await this.save(); // Save changes
   }
 
   /**
@@ -117,7 +124,12 @@ class Fragment {
    * @returns {Array<string>} list of supported mime types
    */
   get formats() {
-    return [this.mimeType];
+    // Example formats, this can be extended as per requirements
+    const formatMapping = {
+      'text/plain': ['text/html', 'application/json'],
+      'text/html': ['text/plain', 'application/json'],
+    };
+    return formatMapping[this.mimeType] || [];
   }
 
   /**
@@ -127,8 +139,9 @@ class Fragment {
    */
   static isSupportedType(value) {
     const { type } = contentType.parse(value);
-    const validTypes = ['text/plain', 'application/json']; // Expand as necessary
-    return validTypes.includes(type);
+    // Define supported types
+    const supportedTypes = ['text/plain', 'text/html', 'application/json'];
+    return supportedTypes.includes(type);
   }
 }
 
