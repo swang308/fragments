@@ -1,7 +1,7 @@
 const express = require('express');
 const contentType = require('content-type');
-const logger = require('../../logger');
-const Fragment = require('../../model/fragment');
+const logger = require('../../../logger');
+const Fragment = require('../../../model/fragment');
 
 // Middleware to handle raw body up to 5MB and support specific content types
 const rawBody = () => express.raw({
