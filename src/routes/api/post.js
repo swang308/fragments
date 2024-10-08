@@ -1,76 +1,47 @@
 // src/routes/api/post.js
-const express = require('express');
-const contentType = require('content-type');
+
 const { Fragment } = require('../../model/fragment');
+require('dotenv').config();
 
-const router = express.Router();
+const { createSuccessResponse, createErrorResponse } = require('../../response');
+const logger = require('../../logger');
 
-// Raw body parser for supporting various Content-Types up to 5MB
-const rawBody = () =>
-  express.raw({
-    inflate: true,
-    limit: '5mb',
-    type: (req) => {
-      // Attempt to parse the Content-Type header
-      const { type } = contentType.parse(req);
-      return Fragment.isSupportedType(type);
-    },
-  });
+// For setting the header, choosing the appropriate header
+let apiUrl;
+if (process.env.API_URL) {
+  apiUrl = process.env.API_URL;
+} else {
+  apiUrl = 'http://localhost:8080';
+}
 
-// Authentication middleware
-const authenticate = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ code: 401, message: 'Unauthorized' });
-  }
-
-  const [scheme, credentials] = authHeader.split(' ');
-  if (scheme !== 'Basic' || !credentials) {
-    return res.status(401).json({ code: 401, message: 'Unauthorized' });
-  }
-
-  // Decode credentials (assume a basic validation for demonstration)
-  req.ownerId = 'sample-owner-id'; // This should be replaced with real validation logic
-  next();
-};
-
-// POST /fragments route
-router.post('/fragments', rawBody(), authenticate, async (req, res) => {
+/*
+ * Create a fragment for the current user
+*/
+module.exports = async (req, res) => {
   try {
-    const { type } = contentType.parse(req);
-
-    if (!Fragment.isSupportedType(type)) {
-      console.error(`Unsupported content type: ${type}`);
-      return res.status(415).json({ error: `Unsupported type: ${type}` });
+    if (!Buffer.isBuffer(req.body)) {
+      return res.status(415).json(createErrorResponse(415, 'Unsupported Content-Type'));
     }
 
-    // Create a new Fragment instance
-    const fragment = new Fragment({
-      ownerId: req.ownerId,
-      type,
-      size: Buffer.isBuffer(req.body) ? req.body.length : 0, // Set size if it's a buffer
-    });
+    // To support all the text/, application/ and image types only
+    if (!Fragment.isSupportedType(req.get('Content-Type'))) {
+      return res.status(415).json(createErrorResponse(415, 'Unsupported Content-Type'));
+    }
 
-    await fragment.save();          // Save the fragment metadata
-    await fragment.setData(req.body); // Set the fragment data
+    const ownerId = req.user;
+    const fragment = new Fragment({ ownerId, type: req.get('Content-Type'), size: req.body.length, });
 
-    // Build the location URL for the created fragment
-    const apiUrl = process.env.API_URL || `http://${req.headers.host}`;
-    const locationUrl = `${apiUrl}/fragments/${fragment.id}`;
+    await fragment.save();
+    await fragment.setData(req.body);
 
-    res.status(201)
-      .location(locationUrl)
-      .json({
-        id: fragment.id,
-        created: fragment.created,
-        type: fragment.type,
-        size: fragment.size,
-        ownerId: fragment.ownerId,
-      });
+    res.setHeader('Content-Type', fragment.type);
+    res.setHeader('Location', `${apiUrl}/v1/fragments/${fragment.id}`);
+
+    res.status(201).json(createSuccessResponse({ fragment: fragment }));
+
+    logger.info({ fragment: fragment }, `Fragment successfully posted`);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    logger.error({ error }, 'Something went wrong while posting the fragment');
+    res.status(500).json(createErrorResponse(500, `${error}`));
   }
-});
-
-module.exports = router;
+};

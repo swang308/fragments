@@ -2,9 +2,18 @@
  * The main entry-point for the v1 version of the fragments API.
  */
 const express = require('express');
+const contentType = require('content-type');
+const { Fragment } = require('../../model/fragment')
 
-// Import the authentication middleware
-const { authenticate } = require('../../auth/basic-auth'); // Adjust the path as necessary
+const rawBody = () =>
+  express.raw({
+    inflate: true,
+    limit: '5mb',
+    type: (req) => {
+      const { type } = contentType.parse(req);
+      return Fragment.isSupportedType(type);
+    },
+  });
 
 // Create a router on which to mount our API endpoints
 const router = express.Router();
@@ -13,6 +22,6 @@ const router = express.Router();
 router.get('/fragments', require('./get'));
 
 // Define POST /v1/fragments route with authentication
-router.post('/fragments', authenticate(), require('./post')); // Add the authenticate middleware here
+router.post('/fragments', rawBody(), require('./post'));
 
 module.exports = router;

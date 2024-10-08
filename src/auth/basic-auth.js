@@ -9,9 +9,11 @@ const authPassport = require('http-auth-passport');
 // We'll use our authorize middle module
 const authorize = require('./auth-middleware');
 
+const logger = require('../logger');
+
 // We expect HTPASSWD_FILE to be defined.
 if (!process.env.HTPASSWD_FILE) {
-  throw new Error('missing expected env var: HTPASSWD_FILE');
+  logger.error('missing expected env var: HTPASSWD_FILE');
 }
 
 module.exports.strategy = () =>
@@ -23,4 +25,7 @@ module.exports.strategy = () =>
     })
   );
 
-module.exports.authenticate = () => authorize('http');
+module.exports.authenticate = () => {
+  logger.info('Using HTTP Basic Auth for authentication');
+  return authorize('http');
+};

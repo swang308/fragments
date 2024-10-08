@@ -31,11 +31,6 @@ app.use(express.json()); // Use for JSON payloads
 passport.use(authenticate.strategy());
 app.use(passport.initialize());
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
-
 // Define a simple health check route. If the server is running
 app.use('/', require('./routes'));
 

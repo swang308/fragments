@@ -12,6 +12,12 @@ const router = express.Router();
 const { authenticate } = require('../auth');
 
 const { createSuccessResponse } = require('../response');
+/**
+ * Expose all of our API routes on /v1/* to include an API version.
+ * Protect them all with middleware so you have to be authenticated
+ * in order to access things.
+ */
+router.use(`/v1`, authenticate(), require('./api'));
 
 /**
  * Define a simple health check route. If the server is running
@@ -38,11 +44,5 @@ router.get('/', (req, res) => {
   });
 });
 
-/**
- * Expose all of our API routes on /v1/* to include an API version.
- * Protect them all with middleware so you have to be authenticated
- * in order to access things.
- */
-router.use(`/v1`, authenticate(), require('./api'));
 
 module.exports = router;
