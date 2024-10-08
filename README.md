@@ -50,6 +50,7 @@ fragements/
 ├── node_modules/
 ├── src/
 │   ├── auth/             # Define our Passport strategy and authentication
+│   │  ├─ auth-middleware.js
 │   │  ├─ basic-auth.js
 │   │  ├─ cognito.js
 │   │  ├─ index.js
