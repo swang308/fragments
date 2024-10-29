@@ -1,41 +1,55 @@
-# Use node version 21.5.0
-FROM node:21.5.0
+# Stage 1: Build
+FROM node:21.5.0 AS build
 
 LABEL maintainer="Shan-Yun Wang <swang308@myseneca.ca>"
-LABEL description="Fragments node.js microservice"
+LABEL description="Fragments Node.js microservice"
+
+# Set environment variables to reduce npm spam and disable color output
+ENV NPM_CONFIG_LOGLEVEL=warn \
+    NPM_CONFIG_COLOR=false
 
 # We default to use port 8080 in our service
 ENV PORT=8080
 
-# Reduce npm spam when installing within Docker
-# https://docs.npmjs.com/cli/v8/using-npm/config#loglevel
-ENV NPM_CONFIG_LOGLEVEL=warn
-
-# Disable colour when run inside Docker
-# https://docs.npmjs.com/cli/v8/using-npm/config#color
-ENV NPM_CONFIG_COLOR=false
-
 # Use /app as our working directory
 WORKDIR /app
 
-# Option 3: explicit filenames - Copy the package.json and package-lock.json
-# files into the working dir (/app), using full paths and multiple source
-# files.  All of the files will be copied into the working dir `./app`
+# Copy package.json and package-lock.json first to leverage Docker cache
 COPY package.json package-lock.json ./
 
-# Install node dependencies defined in package-lock.json
+# Install dependencies
 RUN npm install
 
-# Copy src to /app/src/
-COPY ./src ./src
+# Copy source files for the build
+COPY . .
 
-# Copy our HTPASSWD file
-COPY ./tests/.htpasswd ./tests/.htpasswd
+# Run any necessary build scripts (if applicable)
+# RUN npm run build
 
-# Start the container by running our server
-CMD npm start
+###################################################################
 
-# We run our service on port 8080
-EXPOSE 8080
+# Stage 2: Runtime
+FROM node:21.5.0-slim
 
+# Inherit environment variables
+ENV PORT=8080 \
+    NPM_CONFIG_LOGLEVEL=warn \
+    NPM_CONFIG_COLOR=false
+
+# Set the working directory
+WORKDIR /app
+
+# Copy only necessary files from the build stage
+COPY --from=builder /app /app
+
+# Copy source files
+COPY . .
+
+# Expose the port and set the default command
+EXPOSE ${PORT}
+CMD ["npm", "start"]
+
+# Check route
+HEALTHCHECK --interval=3m --timeout=30s --start-period=10s --retries=3\
+  CMD curl --fail http://localhost:${PORT}/ || exit 1
 
