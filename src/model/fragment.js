@@ -126,10 +126,15 @@ class Fragment {
    * @returns {boolean} true if we support this Content-Type (i.e., type/subtype)
    */
   static isSupportedType(value) {
-    const { type } = contentType.parse(value);
-    const validTypes = ['text/plain', 'application/json']; // Expand as necessary
-    return validTypes.includes(type);
+    try {
+      const { type } = contentType.parse(value);
+      const validTypes = ['text/plain', 'application/json', 'application/octet-stream', 'image/jpeg', 'image/png', 'audio/mpeg']; // Expand as necessary
+      return validTypes.includes(type);
+    } catch (error) {
+      return error; // If parsing fails, treat it as unsupported
+    }
   }
+
 }
 
 module.exports.Fragment = Fragment;
