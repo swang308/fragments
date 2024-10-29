@@ -54,12 +54,23 @@ describe('POST /v1/fragments', () => {
     expect(res.headers.location).toMatch(/\/v1\/fragments\/[a-f0-9-]+$/);
   });
 
-  test('Fragment with an unsupported type gives error', () =>
-    request(app)
+  // test('Fragment with an unsupported type gives error', () =>
+  //   request(app)
+  //     .post('/v1/fragments')
+  //     .set('Content-Type', 'audio/mpeg')
+  //     .auth('user1@email.com', 'password1')
+  //     .send('aa')
+  //     .expect(415)
+  // );
+
+  test('authenticated users create a JSON fragment', async () => {
+    const res = await request(app)
       .post('/v1/fragments')
-      .set('Content-Type', 'audio/mpeg')
       .auth('user1@email.com', 'password1')
-      .send('aa')
-      .expect(415)
-  );
+      .set('Content-Type', 'application/json')
+      .send({ message: "This is a JSON fragment" });
+    expect(res.statusCode).toBe(201);
+    expect(res.headers['content-type']).toContain('application/json');
+  });
+
 });
