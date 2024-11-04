@@ -7,6 +7,7 @@
 # Don't include .DS_Store, which is a macOS system file
 .DS_Store
 
+.docker/
 # Logs
 logs
 *.log

@@ -2,6 +2,7 @@
 .github/
 .ssh/
 .vscode/
+.docker/
 coverage/
 node_modules/
 tests/
