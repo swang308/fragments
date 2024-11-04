@@ -11,15 +11,15 @@ const pino = require('pino-http')({ logger });
 const { createErrorResponse } = require('./response');
 // const { author, version } = require('../package.json');
 
-// Create an express app instance we can use to attach middleware and HTTP routes
-const app = express();
-
 // Initialize environment variables
 require('dotenv').config();
 
+// Create an express app instance we can use to attach middleware and HTTP routes
+const app = express();
+
+// Middleware
 // Use pino logging middleware
 app.use(pino);
-
 // Use helmetjs security middleware
 app.use(helmet());
 // Use CORS middleware so we can make requests across origins

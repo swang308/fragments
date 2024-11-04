@@ -24,7 +24,11 @@ const rawBody = () =>
 
 
 // POST /v1/fragments route with authentication
-router.post('/fragments', rawBody(), require('./post'));
+// router.post('/fragments', rawBody(), require('./post'));
+router.post('/fragments', rawBody(), (req, res) => {
+  console.log('POST /v1/fragments was called');
+  require('./post')(req, res);
+});
 
 // GET /v1/fragments
 router.get('/fragments', require('./get'));
