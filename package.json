@@ -1,7 +1,7 @@
 {
   "name": "fragments",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.5.0",
   "description": "A CCP555 NSA course - Fragments back-end API",
   "main": "src/index.js",
   "scripts": {
