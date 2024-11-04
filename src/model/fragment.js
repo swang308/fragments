@@ -128,7 +128,7 @@ class Fragment {
   static isSupportedType(value) {
     try {
       const { type } = contentType.parse(value);
-      const validTypes = ['text/plain', 'application/json', 'application/octet-stream', 'image/jpeg', 'image/png', 'audio/mpeg']; // Expand as necessary
+      const validTypes = ['text/plain', 'application/json', 'image/jpeg', 'image/png', 'audio/mpeg']; // Expand as necessary
       return validTypes.includes(type);
     } catch (error) {
       return error; // If parsing fails, treat it as unsupported

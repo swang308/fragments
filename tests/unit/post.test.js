@@ -37,11 +37,11 @@ describe('POST /v1/fragments', () => {
     const res = await request(app)
       .post('/v1/fragments')
       .auth('user1@email.com', 'password1')
-      .set('Content-Type', 'application/octet-stream')
+      .set('Content-Type', 'application/json')
       .send(bufferFragment);
 
     expect(res.statusCode).toBe(201);
-    expect(res.headers['content-type']).toContain('application/octet-stream');
+    expect(res.headers['content-type']).toContain('application/json');
   });
 
   test('POST response includes a Location header with a URL to GET the created fragment', async () => {
