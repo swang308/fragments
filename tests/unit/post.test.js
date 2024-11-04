@@ -16,7 +16,7 @@ describe('POST /v1/fragments', () => {
   test('fragment without data returns error', async () => {
     const res = await request(app)
       .post('/v1/fragments')
-      .auth('user1@email.com', 'password1')
+      .auth('user01', '123@wsEd')
       .send();
     expect(res.statusCode).toBe(500);
   });
@@ -24,7 +24,7 @@ describe('POST /v1/fragments', () => {
   test('authenticated users create a plain text fragment', async () => {
     const res = await request(app)
       .post('/v1/fragments')
-      .auth('user1@email.com', 'password1')
+      .auth('user01', '123@wsEd')
       .set('Content-Type', 'text/plain')
       .send('This is a fragment');
     expect(res.statusCode).toBe(201);
@@ -36,7 +36,7 @@ describe('POST /v1/fragments', () => {
 
     const res = await request(app)
       .post('/v1/fragments')
-      .auth('user1@email.com', 'password1')
+      .auth('user01', '123@wsEd')
       .set('Content-Type', 'application/json')
       .send(bufferFragment);
 
@@ -47,7 +47,7 @@ describe('POST /v1/fragments', () => {
   test('POST response includes a Location header with a URL to GET the created fragment', async () => {
     const res = await request(app)
       .post('/v1/fragments')
-      .auth('user1@email.com', 'password1')
+      .auth('user01', '123@wsEd')
       .set('Content-Type', 'text/plain')
       .send('This is a fragment');
     expect(res.statusCode).toBe(201);
@@ -58,7 +58,7 @@ describe('POST /v1/fragments', () => {
   //   request(app)
   //     .post('/v1/fragments')
   //     .set('Content-Type', 'audio/mpeg')
-  //     .auth('user1@email.com', 'password1')
+  //     .auth('user01', '123@wsEd')
   //     .send('aa')
   //     .expect(415)
   // );
@@ -66,7 +66,7 @@ describe('POST /v1/fragments', () => {
   test('authenticated users create a JSON fragment', async () => {
     const res = await request(app)
       .post('/v1/fragments')
-      .auth('user1@email.com', 'password1')
+      .auth('user01', '123@wsEd')
       .set('Content-Type', 'application/json')
       .send({ message: "This is a JSON fragment" });
     expect(res.statusCode).toBe(201);
