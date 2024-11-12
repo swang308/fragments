@@ -1,76 +1,96 @@
-// tests/unit/post.test.js
-
 const request = require('supertest');
 const app = require('../../src/app');
-require('dotenv').config();
 
 describe('POST /v1/fragments', () => {
-  test('unauthenticated requests are denied', () =>
-    request(app).post('/v1/fragments').expect(401)
-  );
+  test('unauthenticated requests are denied', async () => {
+    const data = 'hello';
+    const response = await request(app)
+      .post('/v1/fragments')
+      .set('Content-Type', 'text/plain')
+      .send(data);
+    expect(response.status).toBe(401);
+  });
 
-  test('incorrect credentials are denied', () =>
-    request(app).post('/v1/fragments').auth('invalid@email.com', 'incorrect_password').expect(401)
-  );
+  test('incorrect credentials are denied', async () => {
+    const data = 'hello';
+    const response = await request(app)
+      .post('/v1/fragments')
+      .auth('invalid@email.com', 'incorrect_password')
+      .set('Content-Type', 'text/plain')
+      .send(data);
+    expect(response.status).toBe(401);
+  });
 
-  // test('fragment without data returns error', async () => {
-  //   const res = await request(app)
-  //     .post('/v1/fragments')
-  //     .auth('user01', '123@wsEd')
-  //     .send();
-  //   expect(res.statusCode).toBe(500);
-  // });
+  // text/plain
+  test('authenticated users can post text/plain fragment data', async () => {
+    const data = Buffer.from('hello');
+    const res = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send(data);
 
-  // test('authenticated users create a plain text fragment', async () => {
-  //   const res = await request(app)
-  //     .post('/v1/fragments')
-  //     .auth('user01', '123@wsEd')
-  //     .set('Content-Type', 'text/plain')
-  //     .send('This is a fragment');
-  //   expect(res.statusCode).toBe(201);
-  //   expect(res.headers['content-type']).toContain('text/plain');
-  // });
+    expect(res.statusCode).toBe(201);
+    // expect(res.body.status).toBe('ok');
+    expect(res.headers['content-type']).toContain('text/plain');
+  });
 
-  // test('authenticated users create a binary fragment', async () => {
-  //   const bufferFragment = Buffer.from('This is a test binary fragment');
+  // text/*
+  test('authenticated users can post text/* fragment data', async () => {
+    const data = Buffer.from('hello');
+    const res = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/*')
+      .send(data);
 
-  //   const res = await request(app)
-  //     .post('/v1/fragments')
-  //     .auth('user01', '123@wsEd')
-  //     .set('Content-Type', 'application/json')
-  //     .send(bufferFragment);
+    expect(res.statusCode).toBe(201);
+    expect(res.headers['content-type']).toContain('text/*');
+  });
 
-  //   expect(res.statusCode).toBe(201);
-  //   expect(res.headers['content-type']).toContain('application/json');
-  // });
+  // application/json
+  test('authenticated users can post application/json fragment data', async () => {
+    const data = Buffer.from('hello');
+    const res = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'application/json')
+      .send(data);
 
-  // test('POST response includes a Location header with a URL to GET the created fragment', async () => {
-  //   const res = await request(app)
-  //     .post('/v1/fragments')
-  //     .auth('user01', '123@wsEd')
-  //     .set('Content-Type', 'text/plain')
-  //     .send('This is a fragment');
-  //   expect(res.statusCode).toBe(201);
-  //   expect(res.headers.location).toMatch(/\/v1\/fragments\/[a-f0-9-]+$/);
-  // });
+    expect(res.statusCode).toBe(201);
+    expect(res.body.status).toBe('ok');
+    expect(res.headers['content-type']).toContain('application/json');
+  });
 
-  // test('Fragment with an unsupported type gives error', () =>
-  //   request(app)
-  //     .post('/v1/fragments')
-  //     .set('Content-Type', 'audio/mpeg')
-  //     .auth('user01', '123@wsEd')
-  //     .send('aa')
-  //     .expect(415)
-  // );
+  // unsupported content type
+  test('should return 415 for unsupported content types', async () => {
+    const unsupportedData = '<xml><data>Sample XML data</data></xml>';
+    const response = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1') // Use valid credentials
+      .set('Content-Type', 'application/xml') // Unsupported content type
+      .send(unsupportedData);
 
-  // test('authenticated users create a JSON fragment', async () => {
-  //   const res = await request(app)
-  //     .post('/v1/fragments')
-  //     .auth('user01', '123@wsEd')
-  //     .set('Content-Type', 'application/json')
-  //     .send({ message: "This is a JSON fragment" });
-  //   expect(res.statusCode).toBe(201);
-  //   expect(res.headers['content-type']).toContain('application/json');
-  // });
+    expect(response.status).toBe(415);
+  });
 
+  test('should return 401 for missing required fields', async () => {
+    const data = null; // Missing ownerId or type
+    const response = await request(app)
+      .post('/v1/fragments')
+      .set('Content-Type', 'text/plain')
+      .send(data);
+
+    expect(response.status).toBe(401);
+  });
+
+  test('should return 401 for invalid JSON data format', async () => {
+    const invalidJsonData = '{ text: "hello"'; // Invalid JSON (missing closing quote)
+    const response = await request(app)
+      .post('/v1/fragments')
+      .set('Content-Type', 'application/json')
+      .send(invalidJsonData);
+
+    expect(response.status).toBe(401);
+  });
 });

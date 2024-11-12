@@ -1,45 +1,74 @@
-// src/routes/api/post.js
-
 const { Fragment } = require('../../model/fragment');
-const contentType = require('content-type');
 const { createSuccessResponse, createErrorResponse } = require('../../response');
 const logger = require('../../logger');
-
 require('dotenv').config();
 
-/**
- * Creates a new fragment for the user.
- * The client posts a file (raw binary data) in the body of the request
- * and sets the Content-Type header to the desired type of the fragment if the type is supported.
+const apiUrl = process.env.API_URL || 'http://localhost:8080';
+
+/*
+ * Create a fragment for the current user
  */
 module.exports = async (req, res) => {
-  logger.debug('POST /v1/fragments called');
+  logger.debug('Attempting to add a new fragment - POST /v1/fragments');
 
   try {
-    const { type } = contentType.parse(req);
-    const fragmentData = type === 'application/json' ? Buffer.from(JSON.stringify(req.body)) : req.body;
+    const ownerId = req.user;
+    const contentType = req.get('Content-Type');
 
-    if (!Buffer.isBuffer(fragmentData)) {
-      logger.warn('Unsupported Content-Type: body is not binary data');
-      return res.status(415).json(createErrorResponse(415, 'Unsupported Content-Type'));
+    // Validate supported fragment types
+    if (!Fragment.isSupportedType(contentType)) {
+      return res.status(415).json(createErrorResponse(415, `Unsupported Content-Type: ${contentType}`));
     }
 
-    if (!Fragment.isSupportedType(type)) {
-      logger.warn(`Unsupported type ${type} passed in POST v1/fragments`);
-      return res.status(415).json(createErrorResponse(415, `Unsupported type ${type}`));
+    // Validate request body as Buffer
+    if (!Buffer.isBuffer(req.body)) {
+      return res.status(400).json(createErrorResponse(400, 'Invalid data format. Expected a Buffer.'));
     }
 
-    const fragment = new Fragment({ ownerId: req.user, type, size: fragmentData.length });
+    // Ensure user authentication
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+      return res.status(401).json(createErrorResponse(401, 'Unauthorized access - valid credentials required'));
+    }
+
+    // Check for ownerId and contentType
+    if (!ownerId || !contentType) {
+      return res.status(400).json(createErrorResponse(400, 'Missing ownerId or contentType in request body'));
+    }
+
+    // Create and save a new fragment instance
+    const fragment = new Fragment({
+      ownerId,
+      type: contentType,
+      size: req.body.length,
+      created: new Date().toISOString(),
+      updated: new Date().toISOString(),
+    });
+
     await fragment.save();
-    await fragment.setData(fragmentData);
+    await fragment.setData(req.body);
 
-    const location = new URL(`${process.env.API_URL}/v1/fragments/${fragment.id}`);
-    res.location(location.href)
-      .setHeader('Content-Type', fragment.type)
-      .status(201)
-      .json(createSuccessResponse({ fragment }));
+    const location = `${apiUrl}/v1/fragments/${fragment.id}`;
+
+    // Set response headers
+    res.set({
+      'Content-Type': fragment.type,
+      'Location': location,
+    });
+
+    // Send a successful response with fragment details
+    res.status(201).json(createSuccessResponse({
+      status: 'ok',
+      fragmentId: fragment.id,
+      location: location,
+      type: fragment.type,
+      size: fragment.size,
+      created: fragment.created,
+      updated: fragment.updated,
+    }));
+
+    logger.info({ fragment }, 'Fragment successfully created and posted');
   } catch (error) {
-    logger.error({ error }, 'Error processing POST /v1/fragments');
-    res.status(500).json(createErrorResponse(500, `${error}`));
+    logger.error('Error creating fragment:', error);
+    res.status(500).json(createErrorResponse(500, error.message));
   }
 };
