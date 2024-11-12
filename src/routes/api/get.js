@@ -1,18 +1,25 @@
 // src/routes/api/get.js
 
 const { createSuccessResponse, createErrorResponse } = require('../../response');
-
+const Fragment = require('../../model/fragment');
 /**
  * Get a list of fragments for the current user
  */
 module.exports = (req, res) => {
   try {
-    const fragments = [];
-    // Send a successful response
-    res.json(createSuccessResponse({ fragments }));
-    res.status(200).json(createSuccessResponse({ fragments }));
+    const ownerId = req.user.id;  // Assuming authentication middleware
+    const fragments = Fragment.list(ownerId);
+    res.status(200).json(createSuccessResponse({
+      status: 'ok',
+      fragments,
+    }));
   } catch (error) {
-    // Handle errors and send an error response
-    res.status(500).json(createErrorResponse(500, 'Failed to fetch fragments' + error));
+    res.status(404).json(createErrorResponse({
+      status: 'error',
+      error: {
+        message: error.message,
+        code: 404
+      }
+    }));
   }
 };
