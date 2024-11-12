@@ -17,18 +17,18 @@ const {
 } = require('./data');
 
 class Fragment {
-  constructor({ id, ownerId, created, updated, type, size = 0 }) {
+  constructor({ id = randomUUID(), ownerId, created = new Date().toISOString(), updated = new Date().toISOString(), type, size = 0 }) {
     if (!ownerId) throw new Error('ownerId is required');
     if (!type) throw new Error('type is required');
     if (!Fragment.isSupportedType(type)) throw new Error(`Unsupported type: ${type}`);
     if (typeof size !== 'number' || size < 0) throw new Error('Size must be a non-negative number');
 
-    this.id = id || randomUUID();
+    this.id = id;
     this.ownerId = ownerId;
+    this.created = created;
+    this.updated = updated;
     this.type = type;
     this.size = size;
-    this.created = created || new Date().toISOString();
-    this.updated = updated || this.created;
   }
 
   /**
@@ -39,7 +39,7 @@ class Fragment {
    */
   static async byUser(ownerId, expand = false) {
     const fragments = await listFragments(ownerId, expand);
-    return fragments.map((f) => (expand ? new Fragment(f) : f));
+    return fragments.map((fragment) => (expand ? new Fragment(fragment) : fragment));
   }
 
   /**
@@ -125,16 +125,21 @@ class Fragment {
    * @param {string} value a Content-Type value (e.g., 'text/plain' or 'text/plain: charset=utf-8')
    * @returns {boolean} true if we support this Content-Type (i.e., type/subtype)
    */
-  static isSupportedType(value) {
-    try {
-      const { type } = contentType.parse(value);
-      const validTypes = ['text/plain', 'application/json', 'image/jpeg', 'image/png', 'audio/mpeg']; // Expand as necessary
-      return validTypes.includes(type);
-    } catch (error) {
-      return error; // If parsing fails, treat it as unsupported
-    }
+  static isSupportedType(type) {
+    let validTypes = [
+      'text/plain',
+      'text/plain; charset=utf-8',
+      'text/markdown',
+      'text/html',
+      'text/csv',
+      'text/*',
+      'application/json',
+      'image/png',
+      'image/jpeg',
+      'image/webp',
+      'image/avif',
+      'image/gif',];
+    return validTypes.includes(type);
   }
-
 }
-
 module.exports.Fragment = Fragment;
