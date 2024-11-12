@@ -4,45 +4,56 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const { author, version } = require('../package.json');
+
+const logger = require('./logger');
+const pino = require('pino-http')({
+  // Use our default logger instance, which is already configured
+  logger,
+});
+
 const passport = require('passport');
 const authenticate = require('./auth');
-const logger = require('./logger');
-const pino = require('pino-http')({ logger });
-const { createErrorResponse } = require('./response');
-// const { author, version } = require('../package.json');
-
-// Initialize environment variables
-require('dotenv').config();
 
 // Create an express app instance we can use to attach middleware and HTTP routes
 const app = express();
 
-// Middleware
+const { createErrorResponse } = require('./response');
+
 // Use pino logging middleware
 app.use(pino);
+
 // Use helmetjs security middleware
 app.use(helmet());
+
 // Use CORS middleware so we can make requests across origins
 app.use(cors());
+
 // Use gzip/deflate compression middleware
 app.use(compression());
-app.use(express.json()); // Use for JSON payloads
+
+// Force gzip compression for all responses (useful for testing)
+// app.use(compression({ threshold: 0 }));
+
 // Set up our passport authentication middleware
 passport.use(authenticate.strategy());
 app.use(passport.initialize());
 
-// Define a simple health check route. If the server is running
+// Define a simple health check route in src/routes/index.js
 app.use('/', require('./routes'));
 
 // Add 404 middleware to handle any requests for resources that can't be found
 app.use((req, res) => {
-  res.status(404).json({
-    status: 'error',
-    error: {
-      message: 'not found',
-      code: 404,
-    },
-  });
+  res.status(404).json(
+    createErrorResponse({
+      status: 'error',
+      error: {
+        message: 'not found',
+        code: 404,
+        author,
+        version
+      },
+    }));
 });
 
 // Add error-handling middleware to deal with anything else
@@ -58,9 +69,15 @@ app.use((err, req, res, next) => {
     logger.error({ err }, `Error processing request`);
   }
 
-  res.status(status).json(
-    createErrorResponse(status, message)
-  );
+  res.status(status).json(createErrorResponse({
+    status: 'error',
+    error: {
+      message,
+      code: status,
+      author,
+      version
+    },
+  }));
 });
 
 // Export our `app` so we can access it in server.js
