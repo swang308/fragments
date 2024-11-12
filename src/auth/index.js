@@ -1,4 +1,6 @@
 // src/auth/index.js
+// This file will be used to figure out which of the 
+// two strategies to use at runtime, based on our environment variables.
 
 const passport = require('passport');
 const logger = require('../logger');
