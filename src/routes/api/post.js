@@ -58,12 +58,14 @@ module.exports = async (req, res) => {
     // Send a successful response with fragment details
     res.status(201).json(createSuccessResponse({
       status: 'ok',
-      fragmentId: fragment.id,
-      location: location,
-      type: fragment.type,
-      size: fragment.size,
-      created: fragment.created,
-      updated: fragment.updated,
+      fragment: {
+        id: fragment.id,
+        ownerId: fragment.ownerId,
+        created: fragment.created,
+        updated: fragment.updated,
+        type: fragment.type,
+        size: fragment.size
+      }
     }));
 
     logger.info({ fragment }, 'Fragment successfully created and posted');
