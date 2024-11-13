@@ -63,3 +63,8 @@ jobs:
           push: true
           # Use the git tag version and `latest`
           tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.VERSION_TAG }}, ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:latest
+      - name: Build, tag, and push image to Docker Hub
+        run: |
+          docker buildx create --use
+          docker buildx build --platform linux/amd64,linux/arm64 -t your-dockerhub-username/fragments:main --push .
+        
