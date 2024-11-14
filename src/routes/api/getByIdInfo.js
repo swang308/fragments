@@ -1,3 +1,5 @@
+// src/routes/api/getByIdInfo.js
+
 const { Fragment } = require('../../model/fragment');
 const logger = require('../../logger');
 const { createErrorResponse, createSuccessResponse } = require('../../response');
@@ -7,14 +9,14 @@ module.exports = async (req, res) => {
 
   try {
     // Attempt to retrieve the fragment by ID for the authenticated user
-    const fragment = await Fragment.byId(req.user, id);
+    const fragments = await Fragment.byId(req.user, id);
 
     // Set the response header and send the fragment data if found
-    res.setHeader('Content-Type', fragment.type);
-    return res.status(200).json(createSuccessResponse(fragment));
+    res.setHeader('Content-Type', fragments.type);
+    return res.status(200).json(createSuccessResponse(fragments));
 
   } catch (err) {
-    logger.warn("Error retrieving fragment metadata", { error: err, fragmentId: id });
-    return res.status(404).json(createErrorResponse(404, 'Fragment metadata is not found'));
+    logger.warn('Fragment not found', { error: err, fragmentId: id });
+    return res.status(404).json(createErrorResponse(404, 'Fragment not found'));
   }
 };

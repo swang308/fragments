@@ -1,6 +1,9 @@
+// src/routes/api/post.js
+
 const { Fragment } = require('../../model/fragment');
 const { createSuccessResponse, createErrorResponse } = require('../../response');
 const logger = require('../../logger');
+const { json } = require('express');
 require('dotenv').config();
 
 const apiUrl = process.env.API_URL || 'http://localhost:8080';
@@ -9,7 +12,7 @@ const apiUrl = process.env.API_URL || 'http://localhost:8080';
  * Create a fragment for the current user
  */
 module.exports = async (req, res) => {
-  logger.debug('Attempting to add a new fragment - POST /v1/fragments');
+  logger.debug('Received request - POST /v1/fragments');
 
   try {
     const ownerId = req.user;
@@ -22,17 +25,17 @@ module.exports = async (req, res) => {
 
     // Validate request body as Buffer
     if (!Buffer.isBuffer(req.body)) {
-      return res.status(400).json(createErrorResponse(400, 'Invalid data format. Expected a Buffer.'));
+      return res.status(400).json(createErrorResponse(400, 'Request body must be a Buffer'));
     }
 
     // Ensure user authentication
     if (!req.isAuthenticated || !req.isAuthenticated()) {
-      return res.status(401).json(createErrorResponse(401, 'Unauthorized access - valid credentials required'));
+      return res.status(401).json(createErrorResponse(401, 'Unauthorized user'));
     }
 
     // Check for ownerId and contentType
     if (!ownerId || !contentType) {
-      return res.status(400).json(createErrorResponse(400, 'Missing ownerId or contentType in request body'));
+      return res.status(400).json(createErrorResponse(400, 'Missing ownerId or Content-Type'));
     }
 
     // Create and save a new fragment instance
@@ -48,6 +51,8 @@ module.exports = async (req, res) => {
     await fragment.setData(req.body);
 
     const location = `${apiUrl}/v1/fragments/${fragment.id}`;
+    // Retrieve the actual content of the fragment
+    const fragmentData = await fragment.getData();
 
     // Set response headers
     res.set({
@@ -64,13 +69,15 @@ module.exports = async (req, res) => {
         created: fragment.created,
         updated: fragment.updated,
         type: fragment.type,
-        size: fragment.size
+        size: fragment.size,
+        location: location,
+        // json: fragmentData
       }
     }));
 
-    logger.info({ fragment }, 'Fragment successfully created and posted');
+    logger.info({ fragment }, 'Fragment created');
   } catch (error) {
-    logger.error('Error creating fragment:', error);
+    logger.error('Error creating fragment', error);
     res.status(500).json(createErrorResponse(500, error.message));
   }
 };

@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
 
     // Validate type support
     if (!Fragment.isSupportedType(fragment.type)) {
-      return res.status(415).json(createErrorResponse(415, 'Conversion type is not supported'));
+      return res.status(415).json(createErrorResponse(415, 'Unsupported Content-Type'));
     }
 
     // Map of supported conversions
@@ -47,8 +47,8 @@ module.exports = async (req, res) => {
         res.setHeader('Content-Type', `image/${ext}`);
         return res.status(200).send(convertedData);
       } catch (error) {
-        logger.error({ error }, 'Error converting image');
-        return res.status(415).json(createErrorResponse(415, 'Error converting image'));
+        logger.error({ error }, 'Converting image failed');
+        return res.status(415).json(createErrorResponse(415, 'Image conversion failed'));
       }
     };
 
@@ -70,7 +70,7 @@ module.exports = async (req, res) => {
       }
       if (conversions.image.includes(ext) && fragment.type.startsWith('image/')) return convertToImage();
 
-      return res.status(415).json(createErrorResponse(415, `Cannot convert data to .${ext}`));
+      return res.status(415).json(createErrorResponse(415, `Unsupported conversion: .${ext}`));
     }
 
     // Default response when no extension is specified
@@ -78,7 +78,7 @@ module.exports = async (req, res) => {
     return res.status(200).send(fragData);
 
   } catch (err) {
-    logger.error({ err }, 'Error fetching the fragment');
-    return res.status(404).json(createErrorResponse(404, 'Cannot retrieve the fragment with the provided ID.'));
+    logger.error({ err }, 'Failed to get fragment metadata');
+    return res.status(404).json(createErrorResponse(404, 'Fragment not found'));
   }
 };
