@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:21.5.0 AS builder
+FROM node:21-slim AS builder
 
 LABEL maintainer="Shan-Yun Wang <swang308@myseneca.ca>"
 LABEL description="Fragments Node.js microservice"
@@ -29,7 +29,7 @@ COPY . .
 ###################################################################
 
 # Stage 2: Runtime
-FROM node:21.5.0-slim
+FROM node:21-slim
 
 # Inherit environment variables
 ENV PORT=8080 \
