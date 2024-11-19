@@ -5,8 +5,11 @@ POST http://localhost:8080/v1/fragments
 # Content-Type of the request body as application/json
 Content-Type: application/json
 
+# Include HTTP Basic Auth credentials
 [BasicAuth]
 user1@email.com:password1
+
+# JSON payload sent in the body of the request
 {
   "name": "example",
   "type": "json",
@@ -26,7 +29,7 @@ jsonpath "$.fragment.size" == 56
 [Captures]
 url: header "Location"
 
-# GET the JSON fragment by its URL
+# 2. GET the JSON fragment by its URL
 GET {{url}}
 
 [BasicAuth]
