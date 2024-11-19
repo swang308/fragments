@@ -14,6 +14,8 @@ const logger = require('../logger');
 // We expect HTPASSWD_FILE to be defined.
 if (!process.env.HTPASSWD_FILE) {
   logger.error('missing expected env var: HTPASSWD_FILE');
+} else {
+  logger.info(`Using htpasswd file: ${process.env.HTPASSWD_FILE}`);
 }
 
 module.exports.strategy = () =>

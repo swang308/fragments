@@ -13,6 +13,10 @@ const apiUrl = process.env.API_URL || 'http://localhost:8080';
  */
 module.exports = async (req, res) => {
   logger.debug('Received request - POST /v1/fragments');
+  logger.debug(`req.body (Buffer?): ${Buffer.isBuffer(req.body)}`);
+  logger.debug(`req.body content: ${req.body ? req.body.toString() : 'Empty body'}`);
+  logger.debug(`req.user: ${JSON.stringify(req.user)}`);
+
 
   try {
     const ownerId = req.user;
