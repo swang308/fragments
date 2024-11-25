@@ -10,6 +10,8 @@ const { authenticate } = require('../auth');
 
 const { createSuccessResponse } = require('../response');
 
+const { hostname } = require('os');
+
 // Create a router that we can use to mount our API
 const router = express.Router();
 
@@ -35,7 +37,7 @@ router.get('/', (req, res) => {
       // Use your own GitHub URL for this!
       githubUrl: 'https://github.com/swang308/fragments',
       version,
-      hostname: req.hostname,
+      hostname: hostname(),
     }));
 });
 
