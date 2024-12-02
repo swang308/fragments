@@ -45,6 +45,7 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+
       # Build and Push an Image to Amazon ECR
       - name: Build and push to Amazon ECR
         env:
@@ -67,7 +68,8 @@ jobs:
         run: |
           docker buildx create --use
           docker buildx build --platform linux/amd64,linux/arm64 -t your-dockerhub-username/fragments:main --push .
-      # We need to update our fragment's Task Definition JSON
+      
+          # We need to update our fragment's Task Definition JSON
       # (i.e., fragments-definition.json) to use the newly
       # updated Docker Image to use (i.e., the tag we just pushed to ECR).
       # We can also update/set the environment variables if we want.
@@ -87,13 +89,15 @@ jobs:
           # for any values that should not be checked into git directly.  Here are
           # a few to get you started, but you should fill in the rest yourself.
           environment-variables: |
-            AWS_SESSION_TOKEN=IQoJb3JpZ2luX2VjEHcaCXVzLXdlc3QtMiJHMEUCIQDAYXa5GnxcQXELB9nAsXrC2ynGo3GAlZTCa1XhFyuTDgIgIdLjVs9bcKXpgpKXWq59vD9EiRoP3SKvU4QoHDGEijoqqAIIIBAAGgwzNDA5OTc4Mjg2MTAiDLJ6H1kCUXW2b95ugSqFAqc4tNTExopQ5+2g0MwYzO3nmVtjl2rGPF/Ya7dDYMcF7xwM8OL+3f/q6JjoxV5MDeyLYFTIkvshqQxN/EeuUxoCzEscsEwDeqGd0aSX9ILb6nTYl0XAL+mXxjwTCHo7nt4YMY9UFos17DbgnfZolFtfDXxjWSHpRnFm4tRhFZqHaHKQL7XMCOQojAWC9JZd6LELknz/TNDsVZFcWbZ3UJ02P0yd0yIylPMloQ1DTkON7gy8hC8nvXsrA3PA49S4m9IQHMhG/CQWIs3+opva6LaWaYvMyFoKBBTHQUwCOmGcG7jezEDGQpiCzkT41XSmpu50B/lpROY+u+F7Ctsd/Zs9EIR7BjDZg5S6BjqdAZKIrfxSPm09ihYknHkH+Pg+krynOwxpIW1onrK6dwT5BbSPwIBG6CyAX5wjYwhUszHkGKfG2i9sj5QPvkh5JC333HQaM2S3Yq26F7Ppjv85ddvXuPLO0tBvhsM3hAL+/oGb/MiGuNHHO14LXqe2onmsC+Tn0gDwyK/K4mfX2H6WXunSd3KjbymC2wKqYkzM5IgIgVxkbab4OcQD5GE=
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+             AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}  
             LOG_LEVEL=debug
             NODE_ENV=production
-            AWS_COGNITO_POOL_ID=us-east-1_w2hBqz0Mv
+            AWS_COGNITO_POOL_ID=${{ secrets.AWS_COGNITO_POOL_ID }} 
+            AWS_COGNITO_CLIENT_ID=${{ secrets.AWS_COGNITO_CLIENT_ID }}
             API_URL=fragments-lb-1952344313.us-east-1.elb.amazonaws.com
             PORT=80
-            AWS_COGNITO_CLIENT_ID=73bnq1q30k79bv6ok5akhefls8
             AWS_S3_BUCKET_NAME=swang308-fragments
             AWS_DYNAMODB_TABLE_NAME=fragments
 
