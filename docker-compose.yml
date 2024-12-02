@@ -34,9 +34,9 @@ services:
     image: amazon/dynamodb-local
     ports:
       - '8000:8000'
-    command: ['-jar', 'DynamoDBLocal.jar', '-inMemory']
-    # volumes:
-    #   - dynamodb-data:/data
+    command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb']
+    volumes:
+      - dynamodb-data:/data
 
   localstack:
     container_name: localstack
@@ -46,3 +46,6 @@ services:
     environment:
       - SERVICES=s3,lambda,sqs,dynamodb
       - DEFAULT_REGION=us-east-1
+
+volumes:
+  dynamodb-data:
