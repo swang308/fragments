@@ -35,8 +35,8 @@ services:
     ports:
       - '8000:8000'
     command: ['-jar', 'DynamoDBLocal.jar', '-inMemory']
-    volumes:
-      - dynamodb-data:/data
+    # volumes:
+    #   - dynamodb-data:/data
 
   localstack:
     container_name: localstack

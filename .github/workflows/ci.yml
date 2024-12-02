@@ -61,11 +61,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
-      - name: Install dependencies
+          cache: 'npm'
+      - name: Install node dependencies
+        # NOTE: we need to install dev dependencies too vs. production only for hurl
         run: npm install
-      - name: Start Docker Containers
-        run: docker compose up --build -d
+      - name: Build Containers
+        run: docker compose up -d
       - name: Setup Local AWS Resources
+        # NOTE: this file needs to be made executable *before* you check into git:
+        # $ chmod +x ./scripts/local-aws-setup.sh
         run: ./scripts/local-aws-setup.sh
       - name: Run Hurl Tests
         run: npm run test:integration
