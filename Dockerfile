@@ -9,8 +9,8 @@ ENV NPM_CONFIG_LOGLEVEL=warn \
     NPM_CONFIG_COLOR=false
 
 # We default to use port 8080 in our service
-ENV PORT=80
-# ENV PORT=8080
+# ENV PORT=80
+ENV PORT=8080
 
 # Use /app as our working directory
 WORKDIR /app
@@ -33,8 +33,8 @@ COPY . .
 FROM node:21-slim
 
 # Inherit environment variables
-# ENV PORT=8080 \
-ENV PORT=80 \
+ENV PORT=8080 \
+# ENV PORT=80 \
     NPM_CONFIG_LOGLEVEL=warn \
     NPM_CONFIG_COLOR=false
 

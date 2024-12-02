@@ -7,8 +7,8 @@ services:
     build: .
     environment:
       # Our API will be running on http://localhost:8080
-      # - API_URL=http://localhost:8080
-      - API_URL=http://localhost:80
+      - API_URL=http://localhost:8080
+      # - API_URL=http://localhost:80
       # Use Basic Auth (for running tests, CI)
       - HTPASSWD_FILE=tests/.htpasswd
       # Use the LOG_LEVEL set in the host environment, or default to info
@@ -26,15 +26,15 @@ services:
       - AWS_DYNAMODB_TABLE_NAME=${AWS_DYNAMODB_TABLE_NAME:-fragments}
     # Ports to publish
     ports:
-        - "80:80"
-        # - "8080:8080"
+        # - "80:80"
+        - "8080:8080"
 
   dynamodb-local:
     container_name: dynamodb-local
     image: amazon/dynamodb-local
     ports:
       - '8000:8000'
-    command: ['-jar', 'DynamoDBLocal.jar']
+    command: ['-jar', 'DynamoDBLocal.jar', '-inMemory']
     volumes:
       - dynamodb-data:/data
 
