@@ -6,13 +6,13 @@ const logger = require('../../logger');
 
 // We can use an environment variable or other logic to determine which strategy to use.
 // For now, we're using the 'memory' strategy by default.
-if (process.env.DATA_BACKEND === 'aws') {
-  logger.info('AWS backend is not implemented yet.');
+if (process.env.DATA_STRATEGY === 'dynamodb') {
+  logger.info('Using DynamoDB data strategy');
+  module.exports = require('./dynamodb');
 } else {
   logger.info('Using in-memory data strategy');
-  return require('./memory');
+  module.exports = require('./memory'); // Export the required module instead of returning it.
 }
-
 
 // If the environment sets an AWS Region, we'll use AWS backend
 // services (S3, DynamoDB); otherwise, we'll use an in-memory db.
