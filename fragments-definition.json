@@ -1,140 +1,142 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:us-east-1:340997828610:task-definition/fragments-task:4",
-    "containerDefinitions": [
-        {
-            "name": "fragments-container",
-            "image": "340997828610.dkr.ecr.us-east-1.amazonaws.com/fragments:v0.7.2",
-            "cpu": 256,
-            "memory": 512,
-            "memoryReservation": 512,
-            "portMappings": [
-                {
-                    "name": "fragments-container-80-tcp",
-                    "containerPort": 80,
-                    "hostPort": 80,
-                    "protocol": "tcp",
-                    "appProtocol": "http"
-                }
-            ],
-            "essential": true,
-            "environment": [
-                {
-                    "name": "AWS_SESSION_TOKEN",
-                    "value": "IQoJb3JpZ2luX2VjEHcaCXVzLXdlc3QtMiJHMEUCIQDAYXa5GnxcQXELB9nAsXrC2ynGo3GAlZTCa1XhFyuTDgIgIdLjVs9bcKXpgpKXWq59vD9EiRoP3SKvU4QoHDGEijoqqAIIIBAAGgwzNDA5OTc4Mjg2MTAiDLJ6H1kCUXW2b95ugSqFAqc4tNTExopQ5+2g0MwYzO3nmVtjl2rGPF/Ya7dDYMcF7xwM8OL+3f/q6JjoxV5MDeyLYFTIkvshqQxN/EeuUxoCzEscsEwDeqGd0aSX9ILb6nTYl0XAL+mXxjwTCHo7nt4YMY9UFos17DbgnfZolFtfDXxjWSHpRnFm4tRhFZqHaHKQL7XMCOQojAWC9JZd6LELknz/TNDsVZFcWbZ3UJ02P0yd0yIylPMloQ1DTkON7gy8hC8nvXsrA3PA49S4m9IQHMhG/CQWIs3+opva6LaWaYvMyFoKBBTHQUwCOmGcG7jezEDGQpiCzkT41XSmpu50B/lpROY+u+F7Ctsd/Zs9EIR7BjDZg5S6BjqdAZKIrfxSPm09ihYknHkH+Pg+krynOwxpIW1onrK6dwT5BbSPwIBG6CyAX5wjYwhUszHkGKfG2i9sj5QPvkh5JC333HQaM2S3Yq26F7Ppjv85ddvXuPLO0tBvhsM3hAL+/oGb/MiGuNHHO14LXqe2onmsC+Tn0gDwyK/K4mfX2H6WXunSd3KjbymC2wKqYkzM5IgIgVxkbab4OcQD5GE="
-                },
-                {
-                    "name": "AWS_COGNITO_POOL_ID",
-                    "value": "us-east-1_w2hBqz0Mv"
-                },
-                {
-                    "name": "API_URL",
-                    "value": "http://localhost:80"
-                },
-                {
-                    "name": "PORT",
-                    "value": "80"
-                },
-                {
-                    "name": "AWS_ACCESS_KEY_ID",
-                    "value": "ASIAU6ZIN6ABAFMXQ3BO"
-                },
-                {
-                    "name": "AWS_SECRET_ACCESS_KEY",
-                    "value": "E0W1NuyLnSt5BcGUNhljs0zSU5tW5HmfOicc/Y4J"
-                },
-                {
-                    "name": "HTPASSWD_FILE",
-                    "value": "/Users/shanyunwang/Desktop/Seneca/academy/S5/CCP555NSA/fragments/tests/.htpasswd"
-                },
-                {
-                    "name": "AWS_DEFAULT_REGION",
-                    "value": "us-east-1"
-                },
-                {
-                    "name": "AWS_COGNITO_CLIENT_ID",
-                    "value": "73bnq1q30k79bv6ok5akhefls8"
-                },
-                {
-                    "name": "LOG_LEVEL",
-                    "value": "info"
-                }
-            ],
-            "environmentFiles": [],
-            "mountPoints": [],
-            "volumesFrom": [],
-            "ulimits": [],
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "/ecs/fragments-task",
-                    "mode": "non-blocking",
-                    "awslogs-create-group": "true",
-                    "max-buffer-size": "25m",
-                    "awslogs-region": "us-east-1",
-                    "awslogs-stream-prefix": "ecs"
-                },
-                "secretOptions": []
-            },
-            "systemControls": []
-        }
-    ],
-    "family": "fragments-task",
-    "taskRoleArn": "arn:aws:iam::340997828610:role/LabRole",
-    "executionRoleArn": "arn:aws:iam::340997828610:role/LabRole",
-    "networkMode": "awsvpc",
-    "revision": 4,
-    "volumes": [],
-    "status": "ACTIVE",
-    "requiresAttributes": [
-        {
-            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
-        },
-        {
-            "name": "ecs.capability.execution-role-awslogs"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.ecr-auth"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.task-iam-role"
-        },
-        {
-            "name": "ecs.capability.execution-role-ecr-pull"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-        },
-        {
-            "name": "ecs.capability.task-eni"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
-        }
-    ],
-    "placementConstraints": [],
-    "compatibilities": [
-        "EC2",
-        "FARGATE"
-    ],
-    "requiresCompatibilities": [
-        "FARGATE"
-    ],
-    "cpu": "256",
-    "memory": "512",
-    "runtimePlatform": {
-        "cpuArchitecture": "X86_64",
-        "operatingSystemFamily": "LINUX"
-    },
-    "registeredAt": "2024-11-26T01:31:51.965Z",
-    "registeredBy": "arn:aws:sts::340997828610:assumed-role/voclabs/user3494824=Wang,_Shan-Yun",
-    "tags": []
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:340997828610:task-definition/fragments-task:7",
+  "containerDefinitions": [
+      {
+          "name": "fragments-container",
+          "image": "swang308/fragments:latest",
+          "cpu": 256,
+          "memory": 512,
+          "memoryReservation": 512,
+          "portMappings": [
+              {
+                  "name": "fragments-container-80-tcp",
+                  "containerPort": 80,
+                  "hostPort": 80,
+                  "protocol": "tcp",
+                  "appProtocol": "http"
+              }
+          ],
+          "essential": true,
+          "environment": [
+              {
+                  "name": "AWS_SESSION_TOKEN",
+                  "value": "IQoJb3JpZ2luX2VjEHsaCXVzLXdlc3QtMiJIMEYCIQCAh86/O8IDvogNvZ7syvnF8/k30kVtnHC9pnoa99TawQIhAN4C3b7H4sFp7H032LtlCF236iKzVnQJOtnz57sAYNZSKqgCCCQQABoMMzQwOTk3ODI4NjEwIgxGnHDkakjLeXzJ6ncqhQJKs7XOlTOnVNbxUnwjyXvzNeXrlavsGTGmziE5wMx1gYIt7g1O36EJZX2TRil9USvWzAzvNgfiWnk1OuMNohO8wnxtP20WsmtI7GZEUSqEajK/ppR2rtzV6P8Gh7bILEnr0l4FQLeIyQ7L4PYHasMpPDHbPcLmAWk06S+gPE6X82pNHJ33JxsgQB3Om+ZLa0Y2xQDmyFEQujm3gDPaKOhChm0N9QmkxND1AmdeYP9yquRognUkP5ni0xzCgS7Lr3V7z8EC8tFNivY8UyejqH+RAHLZQxJfhOK12cleXcDFTnQjCXuH3aqVmK04dM4dUq8bpvue6pvLmnXuN5+3n/bJvhZDUs4w1vmUugY6nAGeWM+fmbSpEI4plKizpPOHuGH4ezRIcCubS2Ly22M9lNxnp3cdZNwBulEtNrp4PPv95PBnV8zde40YIggeOD4FerjGHjhwlIaCNhbKyy0yaVSDO3pyzg/MLmL9Rv/j5PxtkbzaqOYZX2d7Ao2MVKE33mm48UHVq6oAKAsL9hs7H1BpZaBXwEUaZS54O/lKS2IbWnqoBusd0Jq3Fp4="
+              },
+              {
+                  "name": "AWS_COGNITO_POOL_ID",
+                  "value": "us-east-1_w2hBqz0Mv"
+              },
+              {
+                  "name": "API_URL",
+                  "value": "http://localhost:80"
+              },
+              {
+                  "name": "PORT",
+                  "value": "80"
+              },
+              {
+                  "name": "AWS_ACCESS_KEY_ID",
+                  "value": "ASIAU6ZIN6ABHOOZEZ3C"
+              },
+              {
+                  "name": "AWS_SECRET_ACCESS_KEY",
+                  "value": "+MgO/3dJhC82t1Q1SXZeNpcSkEpqtVsPcTnVlwve/Y4J"
+              },
+              {
+                  "name": "HTPASSWD_FILE",
+                  "value": "/Users/shanyunwang/Desktop/Seneca/academy/S5/CCP555NSA/fragments/tests/.htpasswd"
+              },
+              {
+                  "name": "AWS_DEFAULT_REGION",
+                  "value": "us-east-1"
+              },
+              {
+                  "name": "AWS_DYNAMODB_TABLE_NAME",
+                  "value": "fragments"
+              },
+              {
+                  "name": "AWS_S3_BUCKET_NAME",
+                  "value": "swang308-fragments"
+              },
+              {
+                  "name": "AWS_COGNITO_CLIENT_ID",
+                  "value": "73bnq1q30k79bv6ok5akhefls8"
+              },
+              {
+                  "name": "LOG_LEVEL",
+                  "value": "debug"
+              }
+          ],
+          "environmentFiles": [],
+          "mountPoints": [],
+          "volumesFrom": [],
+          "ulimits": [],
+          "logConfiguration": {
+              "logDriver": "awslogs",
+              "options": {
+                  "awslogs-group": "/ecs/fragments-task",
+                  "mode": "non-blocking",
+                  "awslogs-create-group": "true",
+                  "max-buffer-size": "25m",
+                  "awslogs-region": "us-east-1",
+                  "awslogs-stream-prefix": "ecs"
+              },
+              "secretOptions": []
+          },
+          "systemControls": []
+      }
+  ],
+  "family": "fragments-task",
+  "taskRoleArn": "arn:aws:iam::340997828610:role/LabRole",
+  "executionRoleArn": "arn:aws:iam::340997828610:role/LabRole",
+  "networkMode": "awsvpc",
+  "revision": 7,
+  "volumes": [],
+  "status": "ACTIVE",
+  "requiresAttributes": [
+      {
+          "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+      },
+      {
+          "name": "ecs.capability.execution-role-awslogs"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.task-iam-role"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+      },
+      {
+          "name": "ecs.capability.task-eni"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+      }
+  ],
+  "placementConstraints": [],
+  "compatibilities": [
+      "EC2",
+      "FARGATE"
+  ],
+  "requiresCompatibilities": [
+      "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512",
+  "runtimePlatform": {
+      "cpuArchitecture": "X86_64",
+      "operatingSystemFamily": "LINUX"
+  },
+  "registeredAt": "2024-11-26T04:06:26.740Z",
+  "registeredBy": "arn:aws:sts::340997828610:assumed-role/voclabs/user3494824=Wang,_Shan-Yun",
+  "tags": []
 }
