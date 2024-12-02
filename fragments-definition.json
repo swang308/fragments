@@ -1,9 +1,9 @@
 {
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:340997828610:task-definition/fragments-task:9",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:340997828610:task-definition/fragments-task:10",
   "containerDefinitions": [
       {
           "name": "fragments-container",
-          "image": "swang308/fragments:latest",
+          "image": "340997828610.dkr.ecr.us-east-1.amazonaws.com/fragments:latest",
           "cpu": 256,
           "memory": 512,
           "memoryReservation": 512,
@@ -28,11 +28,11 @@
               },
               {
                   "name": "API_URL",
-                  "value": "340997828610.dkr.ecr.us-east-1.amazonaws.com/fragments"
+                  "value": "fragments-lb-516075606.us-east-1.elb.amazonaws.com"
               },
               {
                   "name": "PORT",
-                  "value": "8080"
+                  "value": "80"
               },
               {
                   "name": "AWS_ACCESS_KEY_ID",
@@ -86,7 +86,7 @@
   "taskRoleArn": "arn:aws:iam::340997828610:role/LabRole",
   "executionRoleArn": "arn:aws:iam::340997828610:role/LabRole",
   "networkMode": "awsvpc",
-  "revision": 9,
+  "revision": 10,
   "volumes": [],
   "status": "ACTIVE",
   "requiresAttributes": [
@@ -95,6 +95,9 @@
       },
       {
           "name": "ecs.capability.execution-role-awslogs"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.ecr-auth"
       },
       {
           "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
@@ -107,6 +110,9 @@
       },
       {
           "name": "com.amazonaws.ecs.capability.task-iam-role"
+      },
+      {
+          "name": "ecs.capability.execution-role-ecr-pull"
       },
       {
           "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
@@ -132,7 +138,7 @@
       "cpuArchitecture": "X86_64",
       "operatingSystemFamily": "LINUX"
   },
-  "registeredAt": "2024-12-02T21:00:02.911Z",
+  "registeredAt": "2024-12-02T21:49:52.997Z",
   "registeredBy": "arn:aws:sts::340997828610:assumed-role/voclabs/user3494824=Wang,_Shan-Yun",
   "tags": []
 }
