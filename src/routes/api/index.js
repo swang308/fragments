@@ -38,18 +38,18 @@ const rawBody = () =>
 router.post('/fragments', rawBody(), require('./post'));
 
 // GET /v1/fragments
-// router.get('/fragments', require('./get'));
-router.get('/fragments', async (req, res) => {
-  try {
-    logger.debug(`Fetching fragments for user: ${req.user}`);
-    const fragments = await listFragments(req.user);
-    logger.debug(`Fragments fetched: ${JSON.stringify(fragments)}`);
-    res.status(200).json(createSuccessResponse({ fragments }));
-  } catch (err) {
-    logger.error(`Error fetching fragments: ${err.message}`);
-    res.status(500).json(createErrorResponse(500, 'Failed to retrieve fragments'));
-  }
-});
+router.get('/fragments', require('./get'));
+// router.get('/fragments', async (req, res) => {
+//   try {
+//     logger.debug(`Fetching fragments for user: ${req.user}`);
+//     const fragments = await listFragments(req.user);
+//     logger.debug(`Fragments fetched: ${JSON.stringify(fragments)}`);
+//     res.status(200).json(createSuccessResponse({ fragments }));
+//   } catch (err) {
+//     logger.error(`Error fetching fragments: ${err.message}`);
+//     res.status(500).json(createErrorResponse(500, 'Failed to retrieve fragments'));
+//   }
+// });
 
 // GET /v1/fragments/:id
 router.get('/fragments/:id.:ext?', require('./getById'));
