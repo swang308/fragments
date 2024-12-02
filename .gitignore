@@ -9,6 +9,8 @@
 
 .aws/credentials
 
+lab-10-dynamodb.hurl
+
 .docker/
 # Logs
 logs
