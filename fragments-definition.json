@@ -1,5 +1,5 @@
 {
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:340997828610:task-definition/fragments-task:7",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:340997828610:task-definition/fragments-task:9",
   "containerDefinitions": [
       {
           "name": "fragments-container",
@@ -20,7 +20,7 @@
           "environment": [
               {
                   "name": "AWS_SESSION_TOKEN",
-                  "value": "IQoJb3JpZ2luX2VjEHsaCXVzLXdlc3QtMiJIMEYCIQCAh86/O8IDvogNvZ7syvnF8/k30kVtnHC9pnoa99TawQIhAN4C3b7H4sFp7H032LtlCF236iKzVnQJOtnz57sAYNZSKqgCCCQQABoMMzQwOTk3ODI4NjEwIgxGnHDkakjLeXzJ6ncqhQJKs7XOlTOnVNbxUnwjyXvzNeXrlavsGTGmziE5wMx1gYIt7g1O36EJZX2TRil9USvWzAzvNgfiWnk1OuMNohO8wnxtP20WsmtI7GZEUSqEajK/ppR2rtzV6P8Gh7bILEnr0l4FQLeIyQ7L4PYHasMpPDHbPcLmAWk06S+gPE6X82pNHJ33JxsgQB3Om+ZLa0Y2xQDmyFEQujm3gDPaKOhChm0N9QmkxND1AmdeYP9yquRognUkP5ni0xzCgS7Lr3V7z8EC8tFNivY8UyejqH+RAHLZQxJfhOK12cleXcDFTnQjCXuH3aqVmK04dM4dUq8bpvue6pvLmnXuN5+3n/bJvhZDUs4w1vmUugY6nAGeWM+fmbSpEI4plKizpPOHuGH4ezRIcCubS2Ly22M9lNxnp3cdZNwBulEtNrp4PPv95PBnV8zde40YIggeOD4FerjGHjhwlIaCNhbKyy0yaVSDO3pyzg/MLmL9Rv/j5PxtkbzaqOYZX2d7Ao2MVKE33mm48UHVq6oAKAsL9hs7H1BpZaBXwEUaZS54O/lKS2IbWnqoBusd0Jq3Fp4="
+                  "value": "IQoJb3JpZ2luX2VjEB0aCXVzLXdlc3QtMiJHMEUCIQDY0MGWCXEQ7XKPfP8CautCXl0nDR9XZGf0j+A3jjdSRAIgJj4sm48J+S9sTJohKx0SGopou5ItqMMsZYgD1pJXhkMqsQIIxv//////////ARAAGgwzNDA5OTc4Mjg2MTAiDAnPRaT3UzDGVXolayqFAiI16RR6Y/RLDd1dY8AVoRuwqhCBxst7rOZjzsVsWEc74m5LlX/N1YirRqOYyKyAvmpTieSKOEHB8Yq2LgdDx3rhxEybXm9yUkCgkLJl/qg4rFn7qsUgHnztRDJQMrpa0VYpu2hagALA4xV+O+96YSLlSUSUG1fcMvEuCn8gaMwZYtZ3sgdSkc8IEThI69oSIMctd9y9r40OODgxNOhbDNxe+eEArzkisPjPEfPYipcrKh4D2z7yjX7MT/tjdMvf0QLsSxwHL+uyUg+71C5ETcIC4Y4E2/frygT6cjGu1uN/8EdF9/bHNaMQdjK+N9oCR6YcLsxBtIUQbXJPawtJ8wgOMsiyOzCkuri6BjqdAYtQCmXsqGXPy5ILxghQj58MM5hC9/yToL7qsozwCK/EiQT8PVLRW57Xzu4oKMv8fk8jeccIPtAUDfWFQjrSg+E2dCvkMQuVRDictcFeG+vIf8sQYbZfEu84wQQykGmbSjTlLoqwL3HA/gKElsThC47kZXdxElI0jRZ9IWcJwTiqYNC+BIwJZS/D9kHEcfHQGkufCAv2ZPraHEEmxWk="
               },
               {
                   "name": "AWS_COGNITO_POOL_ID",
@@ -28,23 +28,19 @@
               },
               {
                   "name": "API_URL",
-                  "value": "http://localhost:80"
+                  "value": "340997828610.dkr.ecr.us-east-1.amazonaws.com/fragments"
               },
               {
                   "name": "PORT",
-                  "value": "80"
+                  "value": "8080"
               },
               {
                   "name": "AWS_ACCESS_KEY_ID",
-                  "value": "ASIAU6ZIN6ABHOOZEZ3C"
+                  "value": "ASIAU6ZIN6ABPYGJFW4K"
               },
               {
                   "name": "AWS_SECRET_ACCESS_KEY",
-                  "value": "+MgO/3dJhC82t1Q1SXZeNpcSkEpqtVsPcTnVlwve/Y4J"
-              },
-              {
-                  "name": "HTPASSWD_FILE",
-                  "value": "/Users/shanyunwang/Desktop/Seneca/academy/S5/CCP555NSA/fragments/tests/.htpasswd"
+                  "value": "Sgi4c7yHDEdDNViVky6hjDjO/G6ULCk6u+Bf+yc5"
               },
               {
                   "name": "AWS_DEFAULT_REGION",
@@ -90,7 +86,7 @@
   "taskRoleArn": "arn:aws:iam::340997828610:role/LabRole",
   "executionRoleArn": "arn:aws:iam::340997828610:role/LabRole",
   "networkMode": "awsvpc",
-  "revision": 7,
+  "revision": 9,
   "volumes": [],
   "status": "ACTIVE",
   "requiresAttributes": [
@@ -136,7 +132,7 @@
       "cpuArchitecture": "X86_64",
       "operatingSystemFamily": "LINUX"
   },
-  "registeredAt": "2024-11-26T04:06:26.740Z",
+  "registeredAt": "2024-12-02T21:00:02.911Z",
   "registeredBy": "arn:aws:sts::340997828610:assumed-role/voclabs/user3494824=Wang,_Shan-Yun",
   "tags": []
 }
