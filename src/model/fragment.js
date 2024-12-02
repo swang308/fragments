@@ -141,5 +141,17 @@ class Fragment {
       'image/gif',];
     return validTypes.includes(type);
   }
+  /**
+   * List all fragments for the given user
+   * @param {string} ownerId user's hashed email
+   * @param {boolean} expand whether to expand ids to full fragments
+   * @returns Promise<Array<Fragment>>
+   */
+  static async list(ownerId, expand = false) {
+    return await Fragment.byUser(ownerId, expand);
+  }
 }
+
+
+
 module.exports.Fragment = Fragment;

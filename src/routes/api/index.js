@@ -42,9 +42,9 @@ router.get('/fragments/:id.:ext?', require('./getById'));
 router.get('/fragments/:id/info', require('./getByIdInfo'));
 
 // PUT /v1/fragments/:id
-// router.put('/fragments/:id', rawBody(), require('./put'));
+router.put('/fragments/:id', rawBody(), require('./put'));
 
 // DELETE /v1/fragments/:id
-// router.delete('/fragments/:id', require('./delete'));
+router.delete('/fragments/:id', require('./delete.js'));
 
 module.exports = router;
