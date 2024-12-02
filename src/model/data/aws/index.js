@@ -129,6 +129,7 @@ async function readFragmentData(ownerId, id) {
 // Get a list of fragments, either ids-only, or full Objects, for the given user.
 // Returns a Promise<Array<Fragment>|Array<string>|undefined>
 async function listFragments(ownerId, expand = false) {
+  logger.debug(`Querying fragments for ownerId: ${ownerId}`);
   // Configure our QUERY params, with the name of the table and the query expression
   const params = {
     TableName: process.env.AWS_DYNAMODB_TABLE_NAME,
@@ -155,7 +156,7 @@ async function listFragments(ownerId, expand = false) {
   try {
     // Wait for the data to come back from AWS
     const data = await ddbDocClient.send(command);
-
+    logger.debug(`DynamoDB Query Result: ${JSON.stringify(data)}`);
     // If we haven't expanded to include all attributes, remap this array from
     // [ {"id":"b9e7a264-630f-436d-a785-27f30233faea"}, {"id":"dad25b07-8cd6-498b-9aaf-46d358ea97fe"} ,... ] to
     // [ "b9e7a264-630f-436d-a785-27f30233faea", "dad25b07-8cd6-498b-9aaf-46d358ea97fe", ... ]
