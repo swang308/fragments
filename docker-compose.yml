@@ -1,4 +1,4 @@
-version: "3.8"
+# docker-compose.yml
 
 services:
   fragments:
@@ -14,6 +14,9 @@ services:
       # Use the LOG_LEVEL set in the host environment, or default to info
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_SESSION_TOKEN=test
       # Use the LocalStack endpoint vs. AWS for S3 AWS SDK clients.
       # NOTE: we use Docker's internal network to the localstack container
       - AWS_S3_ENDPOINT_URL=http://localstack:4566
@@ -34,7 +37,7 @@ services:
     image: amazon/dynamodb-local
     ports:
       - '8000:8000'
-    command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb']
+    command: ['-jar', 'DynamoDBLocal.jar', '-inMemory']
     volumes:
       - dynamodb-data:/data
 
@@ -44,7 +47,7 @@ services:
     ports:
       - '4566:4566'
     environment:
-      - SERVICES=s3,lambda,sqs,dynamodb
+      - SERVICES=s3
       - DEFAULT_REGION=us-east-1
 
 volumes:

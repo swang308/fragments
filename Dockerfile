@@ -4,6 +4,9 @@ FROM node:21-slim AS builder
 LABEL maintainer="Shan-Yun Wang <swang308@myseneca.ca>"
 LABEL description="Fragments Node.js microservice"
 
+# node.js tooling for prodution
+ENV NODE_ENV=production
+
 # Set environment variables to reduce npm spam and disable color output
 ENV NPM_CONFIG_LOGLEVEL=warn \
     NPM_CONFIG_COLOR=false

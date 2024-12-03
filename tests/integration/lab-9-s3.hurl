@@ -11,7 +11,6 @@ Content-Type: text/plain
 [BasicAuth]
 user1@email.com:password1
 
-
 `Hello S3!`
 
 # Assertions: Ensure we get a 201 Created response
