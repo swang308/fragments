@@ -1,11 +1,8 @@
 const request = require('supertest');
 const app = require('../../src/app');
-const Fragment = require('../../src/model/fragment');
+const { Fragment } = require('../../src/model/fragment'); // Update path as per your project
 
-// Mocking Fragment.list method to return a list of fragments for testing
-jest.mock('../../src/model/fragment', () => ({
-  list: jest.fn(),
-}));
+jest.mock('../../src/model/fragment'); // Mock the fragment module globally
 
 describe('GET /v1/fragments', () => {
   // Test: Unauthenticated requests should be denied
@@ -22,13 +19,13 @@ describe('GET /v1/fragments', () => {
     expect(response.status).toBe(401);
   });
 
-  // Test: Authenticated users should receive a fragments array
   test('authenticated users get a fragments array', async () => {
-    // Mocking a successful response for Fragment.list
+    // Mocking a successful response for Fragment.byUser
     const mockFragments = [
       { id: 1, name: 'Fragment 1' },
-      { id: 2, name: 'Fragment 2' }];
-    Fragment.list.mockResolvedValue(mockFragments);
+      { id: 2, name: 'Fragment 2' },
+    ];
+    Fragment.byUser.mockResolvedValue(mockFragments);
 
     // Send the request with valid credentials
     const response = await request(app)
@@ -38,7 +35,9 @@ describe('GET /v1/fragments', () => {
     // Assertions
     expect(response.status).toBe(200);
     expect(response.body.status).toBe('ok');
+    expect(response.body.fragments).toEqual(mockFragments);
   });
+
 
   // Test: Handling server error (e.g., Fragment.list throws an error)
   // test('should return 404 if an error occurs', async () => {
