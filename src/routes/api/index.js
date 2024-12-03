@@ -10,6 +10,8 @@ const logger = require('../../logger');
 // const { createErrorResponse, createSuccessResponse } = require('../../response');
 // const { listFragments } = require('../../model/data/aws/index.js');
 
+// const passport = require('passport');
+
 // Create a router on which to mount our API endpoints
 const router = express.Router();
 
@@ -39,15 +41,31 @@ router.post('/fragments', rawBody(), require('./post'));
 
 // GET /v1/fragments
 router.get('/fragments', require('./get'));
-// router.get('/fragments', async (req, res) => {
+
+// router.get('/debug-auth', passport.authenticate('basic', { session: false }), (req, res) => {
+//   if (!req.user) {
+//     return res.status(401).json({ error: 'Authentication failed or user is not set' });
+//   }
+//   res.json({ user: req.user });
+// });
+
+// router.get('/fragments', passport.authenticate('basic', { session: false }), async (req, res) => {
 //   try {
-//     logger.debug(`Fetching fragments for user: ${req.user}`);
-//     const fragments = await listFragments(req.user);
-//     logger.debug(`Fragments fetched: ${JSON.stringify(fragments)}`);
-//     res.status(200).json(createSuccessResponse({ fragments }));
-//   } catch (err) {
-//     logger.error(`Error fetching fragments: ${err.message}`);
-//     res.status(500).json(createErrorResponse(500, 'Failed to retrieve fragments'));
+//     // Use `req.user` as the hashed email
+//     const ownerId = req.user;
+//     logger.debug(`Authenticated user ownerId: ${ownerId}`);
+
+//     if (!ownerId) {
+//       throw new Error('User is not authenticated or ownerId is undefined');
+//     }
+
+//     // Retrieve fragments for the authenticated user
+//     const fragments = await Fragment.list(ownerId, req.query.expand === '1');
+//     logger.debug(`Fragments retrieved for ownerId=${ownerId}: ${JSON.stringify(fragments)}`);
+//     res.status(200).json({ status: 'ok', fragments });
+//   } catch (error) {
+//     logger.error(`Error retrieving fragments: ${error.message}`);
+//     res.status(404).json({ status: 'error', error: { message: error.message, code: 404 } });
 //   }
 // });
 
