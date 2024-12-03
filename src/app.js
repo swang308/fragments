@@ -42,6 +42,9 @@ app.use(passport.initialize());
 // Define a simple health check route in src/routes/index.js
 app.use('/', require('./routes'));
 
+// Use authentication middleware
+app.use('/v1', authenticate.authenticate());
+
 // Add 404 middleware to handle any requests for resources that can't be found
 app.use((req, res) => {
   res.status(404).json(
