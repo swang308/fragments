@@ -1,4 +1,5 @@
 // src/auth/auth-middleware.js
+
 const passport = require('passport');
 
 const { createErrorResponse } = require('../response');
@@ -26,7 +27,6 @@ module.exports = (strategyName) => {
 
       // Not authorized, return a 401
       if (!email) {
-        logger.warn('Unauthorized user');
         return res.status(401).json(createErrorResponse(401, 'Unauthorized'));
       }
 
