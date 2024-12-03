@@ -1,6 +1,7 @@
 // src/model/data/memory/index.js
 
 const MemoryDB = require('./memory-db');
+const logger = require('../../../logger');
 
 // Create two in-memory databases: one for fragment metadata and the other for raw data
 const data = new MemoryDB();
@@ -8,6 +9,7 @@ const metadata = new MemoryDB();
 
 // Write a fragment's metadata to memory db. Returns a Promise
 function writeFragment(fragment) {
+  logger.debug(`Writing fragment: ${JSON.stringify(fragment)}`);
   return metadata.put(fragment.ownerId, fragment.id, fragment);
 }
 
@@ -28,7 +30,11 @@ function readFragmentData(ownerId, id) {
 
 // Get a list of fragment ids/objects for the given user from memory db. Returns a Promise
 async function listFragments(ownerId, expand = false) {
+  logger.debug(`listFragments called with ownerId: ${ownerId}, expand: ${expand}`);
+
   const fragments = await metadata.query(ownerId);
+
+  logger.debug(`Fragments fetched: ${JSON.stringify(fragments)}`);
 
   // If we don't get anything back, or are supposed to give expanded fragments, return
   if (expand || !fragments) {
@@ -36,7 +42,8 @@ async function listFragments(ownerId, expand = false) {
   }
 
   // Otherwise, map to only send back the ids
-  return fragments.map((fragment) => fragment.id);
+  // return fragments.map((fragment) => fragment.id);
+  return expand ? fragments : fragments.map((fragment) => fragment.id);
 }
 
 // Delete a fragment's metadata and data from memory db. Returns a Promise
