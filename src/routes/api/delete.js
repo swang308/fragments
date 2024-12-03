@@ -1,5 +1,4 @@
 // src/routes/api/delete.js
-
 const { Fragment } = require('../../model/fragment');
 const logger = require('../../logger');
 const { createErrorResponse, createSuccessResponse } = require('../../response');
@@ -23,7 +22,12 @@ module.exports = async (req, res) => {
     // Respond with success
     res.status(200).json(createSuccessResponse());
   } catch (err) {
-    logger.error(`Error deleting fragment with id: ${id}`, err);
+    if (err.message.includes('Fragment not found')) {
+      logger.warn(`Fragment not found error handled gracefully for id: ${id}`);
+      return res.status(404).json(createErrorResponse(404, 'Fragment not found'));
+    }
+
+    logger.error(`Error deleting fragment with id: ${id}`, err.message || err);
     res.status(500).json(createErrorResponse(500, 'An error occurred while deleting the fragment'));
   }
 };
