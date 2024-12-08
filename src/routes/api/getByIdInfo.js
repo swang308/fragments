@@ -5,7 +5,7 @@ const logger = require('../../logger');
 const { createErrorResponse, createSuccessResponse } = require('../../response');
 
 module.exports = async (req, res) => {
-  const { id } = req.params;
+  const id = req.params.id;
 
   try {
     // Attempt to retrieve the fragment by ID for the authenticated user

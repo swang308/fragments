@@ -1,10 +1,9 @@
 // src/routes/api/putById.js
 
-require('dotenv').config();
-
 const { Fragment } = require('../../model/fragment');
 const logger = require('../../logger');
 const { createErrorResponse, createSuccessResponse } = require('../../response');
+require('dotenv').config();
 
 // Set the base API URL from environment or fallback to localhost
 const apiUrl = process.env.API_URL || 'http://localhost:8080';

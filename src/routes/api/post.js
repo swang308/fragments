@@ -3,7 +3,6 @@
 const { Fragment } = require('../../model/fragment');
 const { createSuccessResponse, createErrorResponse } = require('../../response');
 const logger = require('../../logger');
-// const { json } = require('express');
 require('dotenv').config();
 
 const apiUrl = process.env.API_URL || 'http://localhost:8080';
