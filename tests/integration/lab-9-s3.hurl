@@ -1,10 +1,10 @@
+# tests/integration/lab-9-s3.hurl
+
 # Integration Test for AWS S3 Integration in Fragments Server
 
 # 1. Authenticated POST to /v1/fragments
 # We are sending a plain text fragment with the body "Hello S3!"
-
 POST http://localhost:8080/v1/fragments
-
 Content-Type: text/plain
 
 # Include HTTP Basic Auth credentials
