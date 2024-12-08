@@ -1,79 +1,69 @@
+# .github/workflows/cd.yml
+
 # Continuous Delivery Workflow
-#
-# This should happen whenever we push a new tag, and we tag an existing
-# commit after we know it's good (e.g., has been tested).
-#
-# To create a new tag, we also need to update the package.json version:
-#
-# $ npm version 0.5.0
-#
-# This will update `version` in package.json to `0.5.0` and create a new
-# tag, `v0.5.0` in git. We'll then use this tag (i.e., `v0.5.0`) to tag
-# our docker image before we push to AWS.
+
+# Trigger this workflow whenever a new tag is pushed.
+# Tags should follow the format 'vX.Y.Z'.
+
 name: cd
 
 on:
   push:
-    # Whenever a new tag is pushed
     tags:
-      # Any tag starting with v... should trigger this workflow.
       - 'v**'
 
 jobs:
-  # NOTE: this assumes our CI jobs have already passed previously
-  # (i.e., that we don't tag a commit manually until we know a build is working)
   aws:
-    name: AWS
+    name: Deploy to AWS
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Check out the code
       - name: Check out code
         uses: actions/checkout@v4
-      # NOTE: ending and restarting the Learner Lab will void these secrets,
-      # update them if you are doing this during a new session:
-      # `Error: The security token included in the request is expired`
-      - name: Configure AWS Credentials using Secrets
-        uses: aws-actions/configure-aws-credentials@v4
+
+      # Step 2: Set up Docker Buildx for multi-platform builds
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Step 3: Configure AWS credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          # Use our GitHub Encrypted Secrets via secrets.*
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          # Hard-code our region, which isn't a secret, and won't change
           aws-region: us-east-1
 
-      # Login to our ECR repository using the configured credentials
+      # Step 4: Login to Amazon ECR
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@v1
 
-      # Build and Push an Image to Amazon ECR
-      - name: Build and push to Amazon ECR
+      # Step 5: Build and push Docker image to Amazon ECR
+      - name: Build and push Docker image to Amazon ECR
         env:
-          # Define an Environment Variable with our ECR Registry, getting
-          # the value from the previous step's outputs
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          # Define an Environment Variable with our ECR Repository Name
           ECR_REPO: fragments
-          # We'll give this image two different tags. First, we'll use the git tag (vX.Y.Z)
-          # so that we can always go back and re-create this setup again in the future
-          # if we have to test or debug something. Second, we'll also replace the
-          # `latest` tag, since this is our most up-to-date version.
           VERSION_TAG: ${{ github.ref_name }}
         uses: docker/build-push-action@v4
         with:
           push: true
-          # Use the git tag version and `latest`
-          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.VERSION_TAG }}, ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:latest
+          tags: |
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.VERSION_TAG }}
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:latest
+
+      # Step 6: Build and push Docker image to Docker Hub
       - name: Build, tag, and push image to Docker Hub
         run: |
           docker buildx create --use
-          docker buildx build --platform linux/amd64,linux/arm64 -t your-dockerhub-username/fragments:main --push .
-      
-          # We need to update our fragment's Task Definition JSON
-      # (i.e., fragments-definition.json) to use the newly
-      # updated Docker Image to use (i.e., the tag we just pushed to ECR).
-      # We can also update/set the environment variables if we want.
-      - name: Fill in the new image ID in the Amazon ECS task definition
+          docker buildx build --platform linux/amd64,linux/arm64 \
+            -t your-dockerhub-username/fragments:${{ github.ref_name }} --push .
+          docker buildx build --platform linux/amd64,linux/arm64 \
+            -t your-dockerhub-username/fragments:latest --push .
+
+      # Step 7: Update ECS Task Definition
+      - name: Update ECS Task Definition
         id: update-task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         env:
@@ -83,26 +73,19 @@ jobs:
         with:
           task-definition: fragments-definition.json
           container-name: fragments-container
-          # Use the image we just built and pushed to ECR for this tag
           image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.VERSION_TAG }}
-          # Add all the necessary environment variables, using GitHub Encrypted Secrets
-          # for any values that should not be checked into git directly.  Here are
-          # a few to get you started, but you should fill in the rest yourself.
           environment-variables: |
-            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-             AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}  
             LOG_LEVEL=debug
             NODE_ENV=production
-            AWS_COGNITO_POOL_ID=${{ secrets.AWS_COGNITO_POOL_ID }} 
-            AWS_COGNITO_CLIENT_ID=${{ secrets.AWS_COGNITO_CLIENT_ID }}
-            API_URL=340997828610.dkr.ecr.us-east-1.amazonaws.com/fragments
-            PORT=80
+            AWS_COGNITO_POOL_ID=us-east-1_w2hBqz0Mv
+            AWS_COGNITO_CLIENT_ID=73bnq1q30k79bv6ok5akhefls8
+            API_URL=fragments-lb-1729897819.us-east-1.elb.amazonaws.com
+            PORT=8080
             AWS_S3_BUCKET_NAME=swang308-fragments
             AWS_DYNAMODB_TABLE_NAME=fragments
 
-      # Deploying our updated task definitions to our ECS cluster
-      - name: Deploy Amazon ECS task definition
+      # Step 8: Deploy ECS Task Definition
+      - name: Deploy ECS Task Definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.update-task-def.outputs.task-definition }}
