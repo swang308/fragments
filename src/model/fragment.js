@@ -1,12 +1,10 @@
 // src/model/fragment.js
 
-// Use crypto.randomUUID() to create unique IDs, see:
-// https://nodejs.org/api/crypto.html#cryptorandomuuidoptions
 const { randomUUID } = require('crypto');
-// Use https://www.npmjs.com/package/content-type to create/parse Content-Type headers
 const contentType = require('content-type');
+const logger = require('../logger');
 
-// Functions for working with fragment metadata/data using our DB
+// Import database operations
 const {
   readFragment,
   writeFragment,
@@ -18,11 +16,13 @@ const {
 
 class Fragment {
   constructor({ id = randomUUID(), ownerId, created = new Date().toISOString(), updated = new Date().toISOString(), type, size = 0 }) {
+    // Validate required fields
     if (!ownerId) throw new Error('ownerId is required');
     if (!type) throw new Error('type is required');
     if (!Fragment.isSupportedType(type)) throw new Error(`Unsupported type: ${type}`);
     if (typeof size !== 'number' || size < 0) throw new Error('Size must be a non-negative number');
 
+    // Initialize properties
     this.id = id;
     this.ownerId = ownerId;
     this.created = created;
@@ -31,127 +31,122 @@ class Fragment {
     this.size = size;
   }
 
-  /**
-   * Get all fragments (id or full) for the given user
-   * @param {string} ownerId user's hashed email
-   * @param {boolean} expand whether to expand ids to full fragments
-   * @returns Promise<Array<Fragment>>
-   */
+  // Static methods for database operations
   static async byUser(ownerId, expand = false) {
-    const fragments = await listFragments(ownerId, expand);
-    return fragments.map((fragment) => (expand ? new Fragment(fragment) : fragment));
+    try {
+      const fragments = await listFragments(ownerId, expand);
+      return expand ? fragments.map((fragment) => new Fragment(fragment)) : fragments;
+    } catch (error) {
+      logger.error('Error fetching fragments by user:', error);
+      return [];
+    }
   }
 
-  /**
-   * Gets a fragment for the user by the given id.
-   * @param {string} ownerId user's hashed email
-   * @param {string} id fragment's id
-   * @returns Promise<Fragment>
-   */
   static async byId(ownerId, id) {
-    const fragment = await readFragment(ownerId, id);
-    if (!fragment) throw new Error('Fragment not found');
-    return new Fragment(fragment);
+    try {
+      const result = await readFragment(ownerId, id);
+      if (!result) throw new Error('Fragment not found');
+      return new Fragment(result);
+    } catch (error) {
+      logger.error('Error fetching fragment by ID:', error);
+      throw new Error(error.message);
+    }
   }
 
-  /**
-   * Delete the user's fragment data and metadata for the given id
-   * @param {string} ownerId user's hashed email
-   * @param {string} id fragment's id
-   * @returns Promise<void>
-   */
   static async delete(ownerId, id) {
-    await deleteFragment(ownerId, id);
+    try {
+      await deleteFragment(ownerId, id);
+    } catch (error) {
+      logger.error('Error deleting fragment:', error);
+      throw new Error('Error deleting fragment');
+    }
   }
 
-  /**
-   * Saves the current fragment to the database
-   * @returns Promise<void>
-   */
+  static async list(ownerId, expand = false) {
+    return Fragment.byUser(ownerId, expand);
+  }
+
+  // Instance methods for database operations
   async save() {
     this.updated = new Date().toISOString();
-    await writeFragment(this);
+    try {
+      await writeFragment(this);
+      logger.info('Fragment saved successfully');
+    } catch (error) {
+      logger.error('Error saving fragment:', error);
+      throw new Error('Error saving fragment');
+    }
   }
 
-  /**
-   * Gets the fragment's data from the database
-   * @returns Promise<Buffer>
-   */
   async getData() {
-    return await readFragmentData(this.ownerId, this.id);
+    try {
+      return await readFragmentData(this.ownerId, this.id);
+    } catch (error) {
+      logger.error('Error fetching fragment data:', error);
+      throw new Error('Error fetching fragment data');
+    }
   }
 
-  /**
-   * Set's the fragment's data in the database
-   * @param {Buffer} data
-   * @returns Promise<void>
-   */
   async setData(data) {
-    if (!Buffer.isBuffer(data)) throw new Error('Data must be a Buffer');
-    this.size = data.length;
+    if (!(data instanceof Buffer)) {
+      logger.error('Data must be a Buffer');
+      throw new Error('Data must be a Buffer');
+    }
+
     this.updated = new Date().toISOString();
-    await writeFragmentData(this.ownerId, this.id, data);
-    await this.save();
+    this.size = Buffer.byteLength(data);
+
+    try {
+      await writeFragmentData(this.ownerId, this.id, data);
+    } catch (error) {
+      logger.error('Error setting fragment data:', error);
+      throw new Error('Error setting fragment data');
+    }
   }
 
-  /**
-   * Returns the mime type (e.g., without encoding) for the fragment's type:
-   * "text/html; charset=utf-8" -> "text/html"
-   * @returns {string} fragment's mime type (without encoding)
-   */
+  // Getters
   get mimeType() {
     const { type } = contentType.parse(this.type);
     return type;
   }
 
-  /**
-   * Returns true if this fragment is a text/* mime type
-   * @returns {boolean} true if fragment's type is text/*
-   */
   get isText() {
     return this.mimeType.startsWith('text/');
   }
 
-  /**
-   * Returns the formats into which this fragment type can be converted
-   * @returns {Array<string>} list of supported mime types
-   */
   get formats() {
-    return [this.mimeType];
+    const formatsByType = {
+      'image/png': ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+      'image/jpeg': ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+      'image/gif': ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+      'image/webp': ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+      'text/plain': ['text/plain'],
+      'text/markdown': ['text/plain', 'text/html', 'text/markdown'],
+      'text/html': ['text/plain', 'text/html'],
+      'application/json': ['application/json', 'text/plain'],
+      'text/csv': ['text/csv', 'text/plain', 'text/json'],
+    };
+
+    return formatsByType[this.mimeType] || [];
   }
 
-  /**
-   * Returns true if we know how to work with this content type
-   * @param {string} value a Content-Type value (e.g., 'text/plain' or 'text/plain: charset=utf-8')
-   * @returns {boolean} true if we support this Content-Type (i.e., type/subtype)
-   */
+  // Static utility methods
   static isSupportedType(type) {
-    let validTypes = [
+    const supportedTypes = [
       'text/plain',
       'text/plain; charset=utf-8',
       'text/markdown',
       'text/html',
       'text/csv',
-      'text/*',
       'application/json',
       'image/png',
       'image/jpeg',
       'image/webp',
       'image/avif',
-      'image/gif',];
-    return validTypes.includes(type);
-  }
-  /**
-   * List all fragments for the given user
-   * @param {string} ownerId user's hashed email
-   * @param {boolean} expand whether to expand ids to full fragments
-   * @returns Promise<Array<Fragment>>
-   */
-  static async list(ownerId, expand = false) {
-    return await Fragment.byUser(ownerId, expand);
+      'image/gif',
+    ];
+    return supportedTypes.includes(type);
   }
 }
 
-
-
-module.exports.Fragment = Fragment;
+module.exports = { Fragment };
