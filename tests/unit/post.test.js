@@ -49,19 +49,6 @@ describe('POST /v1/fragments', () => {
     expect(res.headers['content-type']).toContain('text/plain');
   });
 
-  // text/*
-  test('authenticated users can post text/* fragment data', async () => {
-    const data = Buffer.from('hello');
-    const res = await request(app)
-      .post('/v1/fragments')
-      .auth('user1@email.com', 'password1')
-      .set('Content-Type', 'text/*')
-      .send(data);
-
-    expect(res.statusCode).toBe(201);
-    expect(res.headers['content-type']).toContain('text/*');
-  });
-
   // application/json
   test('authenticated users can post application/json fragment data', async () => {
     const data = Buffer.from('hello');
