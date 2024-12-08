@@ -7,25 +7,25 @@ const logger = require('../../src/logger');
 describe('GET /v1/fragments/:id/info', () => {
   const authHeader = { username: 'user1@email.com', password: 'password1' };
 
-  test('Unauthenticated requests are denied', async () => {
+  test('1. Unauthenticated requests are denied', async () => {
     await request(app).get('/v1/fragments/111/info').expect(401);
   });
 
-  test('Incorrect credentials are denied', async () => {
+  test('2. Incorrect credentials are denied', async () => {
     await request(app)
       .get('/v1/fragments/123/info')
       .auth('invalid@email.com', 'incorrect_password')
       .expect(401);
   });
 
-  test('Returns 404 if fragment not found', async () => {
+  test('3. Returns 404 if fragment not found', async () => {
     const res = await request(app).get('/v1/fragments/id-in/info').auth(authHeader.username, authHeader.password);
     expect(res.statusCode).toBe(404);
     expect(res.body.status).toBe('error');
     expect(res.body.error.message).toBe('Fragment not found');
   });
 
-  test('Authenticated users get a fragment metadata', async () => {
+  test('4. Authenticated users get a fragment metadata', async () => {
     const postRes = await request(app)
       .post('/v1/fragments')
       .auth(authHeader.username, authHeader.password)

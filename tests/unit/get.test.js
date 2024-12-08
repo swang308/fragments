@@ -6,20 +6,20 @@ jest.mock('../../src/model/fragment'); // Mock the fragment module globally
 
 describe('GET /v1/fragments', () => {
   // Test: Unauthenticated requests should be denied
-  test('unauthenticated requests are denied', async () => {
+  test('1. Unauthenticated requests are denied', async () => {
     const response = await request(app).get('/v1/fragments');
     expect(response.status).toBe(401);
   });
 
   // Test: Incorrect credentials should be denied
-  test('incorrect credentials are denied', async () => {
+  test('2. Incorrect credentials are denied', async () => {
     const response = await request(app)
       .get('/v1/fragments')
       .auth('invalid@email.com', 'incorrect_password');
     expect(response.status).toBe(401);
   });
 
-  test('authenticated users get a fragments array', async () => {
+  test('3. Authenticated users get a fragments array', async () => {
     // Mocking a successful response for Fragment.byUser
     const mockFragments = [
       { id: 1, name: 'Fragment 1' },

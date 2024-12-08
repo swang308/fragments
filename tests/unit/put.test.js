@@ -5,18 +5,18 @@ require('dotenv').config();
 
 describe('PUT /v1/fragments', () => {
   // Test: Unauthenticated requests should be denied
-  test('unauthenticated requests are denied', () =>
+  test('1. Unauthenticated requests are denied', () =>
     request(app).put('/v1/fragments').expect(401));
 
   // Test: Requests with incorrect credentials should be denied
-  test('incorrect credentials are denied', () =>
+  test('2. Incorrect credentials are denied', () =>
     request(app)
       .put('/v1/fragments')
       .auth('invalid@email.com', 'incorrect_password')
       .expect(401));
 
   // Test: Updating a fragment with an unsupported content-type should fail
-  test('fragment with incorrect content-type data does not work', async () => {
+  test('3. fragment with incorrect content-type data does not work', async () => {
     const initialData = 'This is fragment';
 
     // Create a new fragment
@@ -43,7 +43,7 @@ describe('PUT /v1/fragments', () => {
   });
 
   // Test: PUT response includes a Location header pointing to the updated fragment
-  test('PUT response includes a Location header with a full URL to GET the updated fragment', async () => {
+  test('4. PUT response includes a Location header with a full URL to GET the updated fragment', async () => {
     const initialData = 'This is fragment';
 
     // Create a new fragment
@@ -70,7 +70,7 @@ describe('PUT /v1/fragments', () => {
   });
 
   // Test: Updating a non-existent fragment ID should return 404
-  test('Fragment with incorrect id gives error', async () => {
+  test('5. Fragment with incorrect id gives error', async () => {
     const data = 'This is a fragment';
 
     // Attempt to update a fragment with a non-existent ID

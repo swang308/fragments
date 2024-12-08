@@ -3,20 +3,20 @@ const app = require('../../src/app');
 
 describe('DELETE /v1/fragments/:id', () => {
   // Test for unauthenticated requests
-  test('denies unauthenticated requests with 401 status', () =>
+  test('1. Denies unauthenticated requests with 401 status', () =>
     request(app)
       .delete('/v1/fragments/111')
       .expect(401));
 
   // Test for incorrect credentials
-  test('denies requests with incorrect credentials with 401 status', () =>
+  test('2. Denies requests with incorrect credentials with 401 status', () =>
     request(app)
       .delete('/v1/fragments/111')
       .auth('invalid@email.com', 'incorrect_password')
       .expect(401));
 
-  // Test for deleting a fragment that doesn't exist
-  test('returns 404 if the fragment is not found', async () => {
+  // Test for deleting a fragment that doesn’t exist
+  test('3. Returns 404 if the fragment is not found', async () => {
     const res = await request(app)
       .delete('/v1/fragments/invalid-id')
       .auth('user1@email.com', 'password1');
@@ -27,7 +27,7 @@ describe('DELETE /v1/fragments/:id', () => {
   });
 
   // Test for successfully deleting an existing fragment
-  test('allows authenticated users to delete a fragment', async () => {
+  test('4. Allows authenticated users to delete a fragment', async () => {
     // Create a fragment to delete
     const postRes = await request(app)
       .post('/v1/fragments')

@@ -5,7 +5,7 @@ const { createErrorResponse, createSuccessResponse } = require('../../src/respon
 // Define (i.e., name) the set of tests we're about to do
 describe('API Responses', () => {
   // Write a test for calling createErrorResponse()
-  test('createErrorResponse()', () => {
+  test('1. createErrorResponse()', () => {
     const errorResponse = createErrorResponse(404, 'not found');
     // Expect the result to look like the following
     expect(errorResponse).toEqual({
@@ -18,7 +18,7 @@ describe('API Responses', () => {
   });
 
   // Write a test for calling createSuccessResponse() with no argument
-  test('createSuccessResponse()', () => {
+  test('2. createSuccessResponse()', () => {
     // No arg passed
     const successResponse = createSuccessResponse();
     // Expect the result to look like the following

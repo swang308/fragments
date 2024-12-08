@@ -1,26 +1,29 @@
 const request = require('supertest');
-
 const app = require('../../src/app');
 
 describe('app', () => {
-  // If the request is missing the Authorization header, it should be forbidden
-  test('testing 404 middleware', async () => {
-    const res = await request(app).get('/undefined');
-    expect(res.statusCode).toBe(404);
+  describe('404 Middleware', () => {
+    test('1. Returns 404 for undefined routes', async () => {
+      const res = await request(app).get('/undefined');
+      expect(res.statusCode).toBe(404);
+      expect(res.body.error).toBeDefined(); // Assuming an error message is included in the response body
+    });
   });
 
-  // Test for CORS headers
-  test('CORS headers are set', async () => {
-    const res = await request(app).get('/');
-    expect(res.headers['access-control-allow-origin']).toBe('*'); // Adjust if specific origin is set
+  describe('2. CORS Headers', () => {
+    test('Access-Control-Allow-Origin is set', async () => {
+      const res = await request(app).get('/');
+      expect(res.headers['access-control-allow-origin']).toBe('*'); // Adjust for specific origin
+    });
+
+    // test('Access-Control-Allow-Methods is set', async () => {
+    //   const res = await request(app).get('/');
+    //   expect(res.headers['access-control-allow-methods']).toContain('GET'); // Adjust as needed
+    // });
+
+    // test('Access-Control-Allow-Headers is set', async () => {
+    //   const res = await request(app).get('/');
+    //   expect(res.headers['access-control-allow-headers']).toBeDefined(); // Check specific headers
+    // });
   });
-
-  // Test for gzip compression header, test for gzip compression larger
-  // test('gzip compression is enabled', async () => {
-  //   const res = await request(app).get('/');
-  //   expect(res.headers['content-encoding']).toBe('gzip');
-  // });
-
 });
-
-

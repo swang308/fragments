@@ -7,25 +7,25 @@ const logger = require('../../src/logger');
 describe('GET /v1/fragments/:id/info', () => {
   const authHeader = { username: 'user1@email.com', password: 'password1' };
 
-  test('Returns 401 for requests without authentication', async () => {
+  test('1. Returns 401 for requests without authentication', async () => {
     await request(app).get('/v1/fragments/111/info').expect(401);
   });
 
-  test('Returns 401 for requests with incorrect credentials', async () => {
+  test('2. Returns 401 for requests with incorrect credentials', async () => {
     await request(app)
       .get('/v1/fragments/123/info')
       .auth('invalid@email.com', 'incorrect_password')
       .expect(401);
   });
 
-  test('eturns 404 when the fragment ID is not found', async () => {
+  test('3. Returns 404 when the fragment ID is not found', async () => {
     const res = await request(app).get('/v1/fragments/id-in/info').auth(authHeader.username, authHeader.password);
     expect(res.statusCode).toBe(404);
     expect(res.body.status).toBe('error');
     expect(res.body.error.message).toBe('Fragment not found');
   });
 
-  test('Returns fragment data for authenticated requests with a valid ID', async () => {
+  test('4. Returns fragment data for authenticated requests with a valid ID', async () => {
     const postRes = await request(app)
       .post('/v1/fragments')
       .auth(authHeader.username, authHeader.password)
@@ -40,7 +40,7 @@ describe('GET /v1/fragments/:id/info', () => {
     expect(getRes.statusCode).toBe(200);
   });
 
-  test('Returns 415 for unsupported content type conversion', async () => {
+  test('5. Returns 415 for unsupported content type conversion', async () => {
     const postRes = await request(app)
       .post('/v1/fragments')
       .auth(authHeader.username, authHeader.password)
@@ -57,7 +57,7 @@ describe('GET /v1/fragments/:id/info', () => {
     expect(getRes.body.error.message).toBe('Unsupported conversion: .unsupported');
   });
 
-  test('Returns fragment data in original type if no extension is specified', async () => {
+  test('6. Returns fragment data in original type if no extension is specified', async () => {
     const postRes = await request(app)
       .post('/v1/fragments')
       .auth(authHeader.username, authHeader.password)
@@ -75,7 +75,7 @@ describe('GET /v1/fragments/:id/info', () => {
     expect(getRes.text).toBe('This is a plain text fragment');
   });
 
-  test('Converts Markdown to HTML if .html extension is specified', async () => {
+  test('7. Converts Markdown to HTML if .html extension is specified', async () => {
     const postRes = await request(app)
       .post('/v1/fragments')
       .auth(authHeader.username, authHeader.password)
@@ -93,7 +93,7 @@ describe('GET /v1/fragments/:id/info', () => {
     expect(getRes.text).toContain('<h1>Markdown Title</h1>');
   });
 
-  test('Returns 415 for unsupported conversion type', async () => {
+  test('8. Returns 415 for unsupported conversion type', async () => {
     const postRes = await request(app)
       .post('/v1/fragments')
       .auth(authHeader.username, authHeader.password)
