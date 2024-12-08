@@ -7,7 +7,7 @@
 # Don't include .DS_Store, which is a macOS system file
 .DS_Store
 
-.aws/credentials
+.aws/
 
 lab-10-dynamodb.hurl
 
