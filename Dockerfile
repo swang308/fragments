@@ -4,59 +4,44 @@ FROM node:21-slim AS builder
 LABEL maintainer="Shan-Yun Wang <swang308@myseneca.ca>"
 LABEL description="Fragments Node.js microservice"
 
-# node.js tooling for production
 ENV NODE_ENV=production
-
-# Set environment variables to reduce npm spam and disable color output
 ENV NPM_CONFIG_LOGLEVEL=warn \
     NPM_CONFIG_COLOR=false
-
-# We default to use port 8080 in our service
 ENV PORT=8080
 
-# Use /app as our working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json first to leverage Docker cache
+# Copy package files first to leverage Docker caching
 COPY package.json package-lock.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci --only=production
 
-# Copy source files for the build
-COPY . .
-
-# Run any necessary build scripts (if applicable)
-# RUN npm run build
-
-###################################################################
+# Copy the application source code (including src/index.js)
+COPY . . 
 
 # Stage 2: Runtime
 FROM node:21-slim
 
-# Inherit environment variables
-ENV PORT=8080 \
-    NPM_CONFIG_LOGLEVEL=warn \
-    NPM_CONFIG_COLOR=false
+# Install Docker CLI and dependencies
+# RUN apt-get update && apt-get install -y docker.io && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory
+ENV PORT=8080
+
 WORKDIR /app
 
 # Copy files from the builder stage
-COPY --chown=node:node --from=builder /app /app
-
-# Copy our HTPASSWD file
-COPY --chown=node:node ./tests/.htpasswd /app/tests/.htpasswd
+COPY --from=builder /app /app
 
 # Change the user privilege to least
 USER node
 
-# Expose the port
-EXPOSE ${PORT}
-
 # Set the default command
 CMD ["npm", "start"]
 
-# Check route
+# Expose the port
+EXPOSE ${PORT}
+
+# Healthcheck for container
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
   CMD curl --fail http://localhost:${PORT}/ || exit 1
