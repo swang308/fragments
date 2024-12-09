@@ -1,11 +1,10 @@
 {
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:340997828610:task-definition/fragments-task:10",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:340997828610:task-definition/fragments-task:28",
   "containerDefinitions": [
       {
           "name": "fragments-container",
-          "image": "340997828610.dkr.ecr.us-east-1.amazonaws.com/fragments:latest",
+          "image": "swang308/fragments:latest",
           "cpu": 256,
-          "memory": 512,
           "memoryReservation": 512,
           "portMappings": [
               {
@@ -19,40 +18,28 @@
           "essential": true,
           "environment": [
               {
-                  "name": "AWS_SESSION_TOKEN",
-                  "value": "IQoJb3JpZ2luX2VjEB0aCXVzLXdlc3QtMiJHMEUCIQDY0MGWCXEQ7XKPfP8CautCXl0nDR9XZGf0j+A3jjdSRAIgJj4sm48J+S9sTJohKx0SGopou5ItqMMsZYgD1pJXhkMqsQIIxv//////////ARAAGgwzNDA5OTc4Mjg2MTAiDAnPRaT3UzDGVXolayqFAiI16RR6Y/RLDd1dY8AVoRuwqhCBxst7rOZjzsVsWEc74m5LlX/N1YirRqOYyKyAvmpTieSKOEHB8Yq2LgdDx3rhxEybXm9yUkCgkLJl/qg4rFn7qsUgHnztRDJQMrpa0VYpu2hagALA4xV+O+96YSLlSUSUG1fcMvEuCn8gaMwZYtZ3sgdSkc8IEThI69oSIMctd9y9r40OODgxNOhbDNxe+eEArzkisPjPEfPYipcrKh4D2z7yjX7MT/tjdMvf0QLsSxwHL+uyUg+71C5ETcIC4Y4E2/frygT6cjGu1uN/8EdF9/bHNaMQdjK+N9oCR6YcLsxBtIUQbXJPawtJ8wgOMsiyOzCkuri6BjqdAYtQCmXsqGXPy5ILxghQj58MM5hC9/yToL7qsozwCK/EiQT8PVLRW57Xzu4oKMv8fk8jeccIPtAUDfWFQjrSg+E2dCvkMQuVRDictcFeG+vIf8sQYbZfEu84wQQykGmbSjTlLoqwL3HA/gKElsThC47kZXdxElI0jRZ9IWcJwTiqYNC+BIwJZS/D9kHEcfHQGkufCAv2ZPraHEEmxWk="
-              },
-              {
                   "name": "AWS_COGNITO_POOL_ID",
                   "value": "us-east-1_w2hBqz0Mv"
               },
               {
-                  "name": "API_URL",
-                  "value": "fragments-lb-516075606.us-east-1.elb.amazonaws.com"
-              },
-              {
-                  "name": "PORT",
-                  "value": "8080"
-              },
-              {
-                  "name": "AWS_ACCESS_KEY_ID",
-                  "value": "ASIAU6ZIN6ABPYGJFW4K"
-              },
-              {
-                  "name": "AWS_SECRET_ACCESS_KEY",
-                  "value": "Sgi4c7yHDEdDNViVky6hjDjO/G6ULCk6u+Bf+yc5"
-              },
-              {
-                  "name": "AWS_DEFAULT_REGION",
+                  "name": "AWS_REGION",
                   "value": "us-east-1"
               },
               {
-                  "name": "AWS_DYNAMODB_TABLE_NAME",
-                  "value": "fragments"
+                  "name": "API_URL",
+                  "value": "http://localhost:80"
+              },
+              {
+                  "name": "PORT",
+                  "value": "80"
               },
               {
                   "name": "AWS_S3_BUCKET_NAME",
                   "value": "swang308-fragments"
+              },
+              {
+                  "name": "AWS_DYNAMODB_TABLE_NAME",
+                  "value": "fragments"
               },
               {
                   "name": "AWS_COGNITO_CLIENT_ID",
@@ -86,7 +73,7 @@
   "taskRoleArn": "arn:aws:iam::340997828610:role/LabRole",
   "executionRoleArn": "arn:aws:iam::340997828610:role/LabRole",
   "networkMode": "awsvpc",
-  "revision": 10,
+  "revision": 28,
   "volumes": [],
   "status": "ACTIVE",
   "requiresAttributes": [
@@ -95,9 +82,6 @@
       },
       {
           "name": "ecs.capability.execution-role-awslogs"
-      },
-      {
-          "name": "com.amazonaws.ecs.capability.ecr-auth"
       },
       {
           "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
@@ -110,9 +94,6 @@
       },
       {
           "name": "com.amazonaws.ecs.capability.task-iam-role"
-      },
-      {
-          "name": "ecs.capability.execution-role-ecr-pull"
       },
       {
           "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
@@ -138,7 +119,7 @@
       "cpuArchitecture": "X86_64",
       "operatingSystemFamily": "LINUX"
   },
-  "registeredAt": "2024-12-02T21:49:52.997Z",
+  "registeredAt": "2024-12-09T05:59:41.374Z",
   "registeredBy": "arn:aws:sts::340997828610:assumed-role/voclabs/user3494824=Wang,_Shan-Yun",
   "tags": []
 }

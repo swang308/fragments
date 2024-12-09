@@ -2,7 +2,7 @@
 
 const { Fragment } = require('../../model/fragment');
 const logger = require('../../logger');
-const { createErrorResponse } = require('../../response');
+const { createSuccessResponse, createErrorResponse } = require('../../response');
 const MarkdownIt = require('markdown-it');
 const sharp = require('sharp');
 
@@ -78,7 +78,13 @@ module.exports = async (req, res) => {
       default:
         if (!ext) {
           res.setHeader('Content-Type', fragment.type);
-          return res.status(200).send(fragData);
+          const response = {
+            id: fragment.id,
+            size: fragment.size,
+            type: fragment.type,
+            data: fragData.toString(),
+          };
+          return res.status(200).json(createSuccessResponse(response));
         }
         break;
     }

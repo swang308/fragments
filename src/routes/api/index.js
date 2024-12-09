@@ -41,9 +41,9 @@ router.get('/fragments/:id.:ext?', require('./getById'));
 router.get('/fragments/:id/info', require('./getByIdInfo'));
 
 // PUT /v1/fragments/:id
-router.put('/fragments/:id', rawBody(), require('./put'));
+router.put('/fragments/:id', rawBody(), require('./putById'));
 
 // DELETE /v1/fragments/:id
-router.delete('/fragments/:id', require('./delete.js'));
+router.delete('/fragments/:id', require('./deleteById'));
 
 module.exports = router;
