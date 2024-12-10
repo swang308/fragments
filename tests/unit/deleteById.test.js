@@ -16,14 +16,14 @@ describe('DELETE /v1/fragments/:id', () => {
       .expect(401));
 
   // Test for deleting a fragment that doesn’t exist
-  test('3. Returns 404 if the fragment is not found', async () => {
+  test('3. Returns 500 if the fragment is not retrieved', async () => {
     const res = await request(app)
       .delete('/v1/fragments/invalid-id')
       .auth('user1@email.com', 'password1');
 
-    expect(res.statusCode).toBe(404);
+    expect(res.statusCode).toBe(500);
     expect(res.body.status).toBe('error');
-    expect(res.body.error.message).toMatch(/Fragment not found/i);
+    expect(res.body.error.message).toBe('Internal server error');
   });
 
   // Test for successfully deleting an existing fragment

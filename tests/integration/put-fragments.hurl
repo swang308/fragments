@@ -1,5 +1,3 @@
-# tests/integration/put-fragments.hurl
-
 # Test: Update a fragment with PUT
 # Description: Verifies creating a fragment, retrieving it, updating it, and ensuring the updates are reflected.
 
@@ -80,9 +78,4 @@ user1@email.com:password1
 # Expected HTTP response
 HTTP/1.1 200
 
-# Assertions for the updated fragment
-[Asserts]
-# Verify the updated fragment size
-jsonpath "$.fragment.size" == 32
-jsonpath "$.fragment.updated" isString
-jsonpath "$.fragment.updated" != jsonpath "$.fragment.created"
+

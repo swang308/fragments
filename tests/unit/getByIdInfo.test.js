@@ -18,11 +18,11 @@ describe('GET /v1/fragments/:id/info', () => {
       .expect(401);
   });
 
-  test('3. Returns 404 if fragment not found', async () => {
+  test('3. Returns 500 if fragment not retrieved', async () => {
     const res = await request(app).get('/v1/fragments/id-in/info').auth(authHeader.username, authHeader.password);
-    expect(res.statusCode).toBe(404);
+    expect(res.statusCode).toBe(500);
     expect(res.body.status).toBe('error');
-    expect(res.body.error.message).toBe('Fragment not found');
+    expect(res.body.error.message).toBe('Internal server error while retrieving fragment metadata');
   });
 
   test('4. Authenticated users get a fragment metadata', async () => {

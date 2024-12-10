@@ -1,21 +1,15 @@
-# tests/integration/404.hurl
+# Health Check Test
+GET http://localhost:8080/random
 
-# Test: No page found
-# Description: Ensure that a request to a non-existent route returns a 404 response with the expected JSON error structure.
-
-GET http://localhost:8080/no-such-route
-
-# Expected HTTP status
+# We should get back an HTTP 1.1 404 response
 HTTP/1.1 404
 
-# Response assertions
+# Extra checks to perform against the response
 [Asserts]
-# Assert the response has a status of "error"
+# We expect to get back a JSON response with { "status": "ok", ... }
 jsonpath "$.status" == "error"
-
-# Assert the error code is 404
+# We expect to get back a JSON response with { "code": 404}
 jsonpath "$.error.code" == 404
-
-# Assert the error message is a string and matches "not found"
+# We expect to get back a JSON response with { "message": "not found"} which is a string
 jsonpath "$.error.message" isString
 jsonpath "$.error.message" == "not found"

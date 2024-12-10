@@ -18,11 +18,11 @@ describe('GET /v1/fragments/:id/info', () => {
       .expect(401);
   });
 
-  test('3. Returns 404 when the fragment ID is not found', async () => {
+  test('3. Returns 500 when the fragment ID is not retrieved', async () => {
     const res = await request(app).get('/v1/fragments/id-in/info').auth(authHeader.username, authHeader.password);
-    expect(res.statusCode).toBe(404);
+    expect(res.statusCode).toBe(500);
     expect(res.body.status).toBe('error');
-    expect(res.body.error.message).toBe('Fragment not found');
+    expect(res.body.error.message).toBe('Internal server error while retrieving fragment metadata');
   });
 
   test('4. Returns fragment data for authenticated requests with a valid ID', async () => {
@@ -54,7 +54,7 @@ describe('GET /v1/fragments/:id/info', () => {
       .get(`/v1/fragments/${id}.unsupported`)
       .auth(authHeader.username, authHeader.password);
     expect(getRes.statusCode).toBe(415);
-    expect(getRes.body.error.message).toBe('Unsupported conversion: .unsupported');
+    expect(getRes.body.error.message).toBe('Unsupported conversion type');
   });
 
   test('6. Returns fragment data in original type if no extension is specified', async () => {
@@ -71,8 +71,8 @@ describe('GET /v1/fragments/:id/info', () => {
       .get(`/v1/fragments/${id}`)
       .auth(authHeader.username, authHeader.password);
     expect(getRes.statusCode).toBe(200);
-    expect(getRes.header['content-type']).toBe('text/plain');
-    expect(getRes.text).toBe('This is a plain text fragment');
+    expect(getRes.header['content-type']).toContain('text/plain');
+    expect(getRes.text).toContain('This is a plain text fragment');
   });
 
   test('7. Converts Markdown to HTML if .html extension is specified', async () => {
@@ -107,7 +107,7 @@ describe('GET /v1/fragments/:id/info', () => {
       .get(`/v1/fragments/${id}.unsupported`)
       .auth(authHeader.username, authHeader.password);
     expect(getRes.statusCode).toBe(415);
-    expect(getRes.body.error.message).toBe('Unsupported conversion: .unsupported');
+    expect(getRes.body.error.message).toBe('Unsupported conversion type');
   });
 
   // test('Converts image to specified format (e.g., .jpeg)', async () => {

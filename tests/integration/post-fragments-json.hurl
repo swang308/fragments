@@ -1,45 +1,54 @@
 # tests/integration/post-fragments-json.hurl
-# POST a JSON fragment
+
+# Authenticated POST to /v1/fragments
 POST http://localhost:8080/v1/fragments
 
-# Content-Type of the request body as application/json
+# We're sending a plain text fragment
 Content-Type: application/json
 
 # Include HTTP Basic Auth credentials
 [BasicAuth]
 user1@email.com:password1
 
-# JSON payload sent in the body of the request
-{
-  "name": "example",
-  "type": "json",
-  "value": 42
-}
+# Body of the request goes in ```...``` when it's a string
+`This is a fragment!`
 
-# Expect a 201 Created response
+# We expect to get back an HTTP 201
 HTTP/1.1 201
 
-# Assertions to validate the response JSON
+# We have various assertions about the response that we want to check
 [Asserts]
-jsonpath "$.status" == "ok"
-jsonpath "$.fragment.type" == "application/json"
-jsonpath "$.fragment.size" == 56
 
-# Captures the Location header from the response and stores it in the variable url.
+# The Location header should look like what we expect (including the fragment id)
+header "Location" matches "^http:\/\/localhost:8080\/v1\/fragments\/[A-Za-z0-9_-]+$"
+jsonpath "$.status" == "ok"
+
+# Our fragment ids use UUIDs, see https://ihateregex.io/expr/uuid/
+jsonpath "$.fragment.id" matches "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+
+# Our ownerId hash is a hex encoded string
+jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
+
+# Basic check for the presence of created and updated date strings.
+# You could also write a regex for this and use matches
+jsonpath "$.fragment.created" isString
+jsonpath "$.fragment.updated" isString
+jsonpath "$.fragment.type" == "application/json"
+
+# 19 is the length of our fragment data: 'This is a fragment!'
+jsonpath "$.fragment.size" == 19
+
+# Capture the Location URL into a variable named `url`
 [Captures]
 url: header "Location"
 
-# 2. GET the JSON fragment by its URL
+# 2. Try to GET the fragment we just posted by its URL
 GET {{url}}
-
 [BasicAuth]
 user1@email.com:password1
 
-# Ensure the response matches the POSTed JSON
 HTTP/1.1 200
 Content-Type: application/json
-
+Content-Length: 19
 [Asserts]
-jsonpath "$.name" == "example"
-jsonpath "$.type" == "json"
-jsonpath "$.value" == 42
+body == "This is a fragment!"

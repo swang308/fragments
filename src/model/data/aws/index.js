@@ -172,7 +172,7 @@ async function deleteFragment(ownerId, id) {
 
   const ddbParams = {
     TableName: process.env.AWS_DYNAMODB_TABLE_NAME,
-    Key: { ownerId, id },
+    Key: {ownerId, id},
   }
 
   // Create a Delete Object command to send to S3

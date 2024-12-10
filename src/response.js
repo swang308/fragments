@@ -1,37 +1,27 @@
 // src/response.js
 
 /**
- * A successful response looks like:
- *
- * {
- *   "status": "ok",
- *   ...
- * }
+ * Creates a success response.
+ * 
+ * @param {object} data - Data to include in the response.
+ * @returns {object} - Success response.
  */
-module.exports.createSuccessResponse = function (data) {
-  return {
-    status: 'ok',
-    ...data
-  };
-};
+module.exports.createSuccessResponse = (data) => ({
+  status: 'ok',
+  ...data,
+});
 
 /**
- * An error response looks like:
- *
- * {
- *   "status": "error",
- *   "error": {
- *     "code": 400,
- *     "message": "invalid request, missing ...",
- *   }
- * }
+ * Creates an error response.
+ * 
+ * @param {number} code - Error code.
+ * @param {string} message - Error message.
+ * @returns {object} - Error response.
  */
-module.exports.createErrorResponse = function (code, message) {
-  return {
-    status: 'error',
-    error: {
-      code,
-      message
-    }
-  }
-};
+module.exports.createErrorResponse = (code, message) => ({
+  status: 'error',
+  error: {
+    code,
+    message,
+  },
+});

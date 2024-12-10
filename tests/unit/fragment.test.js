@@ -151,7 +151,7 @@ describe('Fragment class', () => {
     test('7.1 formats returns the expected result for plain text', () => {
       const fragment = new Fragment({
         ownerId: '1234',
-        type: 'text/plain; charset=utf-8',
+        type: 'text/plain',
         size: 0,
       });
       expect(fragment.formats).toEqual(['text/plain']);
