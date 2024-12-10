@@ -17,14 +17,18 @@ const rawBody = () =>
     },
   });
 
+// POST
 router.post('/fragments', rawBody(), require('./post'));
 
+// GET
 router.get('/fragments', require('./get'));
 router.get('/fragments/:id.:ext?', require('./getById'));
 router.get('/fragments/:id/info', require('./getByIdInfo'));
 
+// DELETE
 router.delete('/fragments/:id', require('./deleteById'));
 
+// PUT
 router.put('/fragments/:id', rawBody(), require('./putById'));
 
 module.exports = router;
