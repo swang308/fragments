@@ -56,9 +56,9 @@ jobs:
         run: |
           docker buildx create --use
           docker buildx build --platform linux/amd64,linux/arm64 \
-            -t your-dockerhub-username/fragments:${{ github.ref_name }} --push .
+            -t swang308/fragments:${{ github.ref_name }} --push .
           docker buildx build --platform linux/amd64,linux/arm64 \
-            -t your-dockerhub-username/fragments:latest --push .
+            -t swang308/fragments:latest --push .
 
       # Step 7: Update ECS Task Definition
       - name: Update ECS Task Definition
